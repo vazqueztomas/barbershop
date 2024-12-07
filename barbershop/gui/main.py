@@ -45,6 +45,20 @@ def show_register():
     except FileNotFoundError:
         messagebox.showerror("Error", "Aún no hay registros de cortes de pelo.")
         
+def update_income_display():
+    try:
+        with open("register_haircuts.csv", "r") as archive:
+            reader = csv.reader(archive)
+            
+            income = 0
+            
+            for fila in reader:
+                income += float(fila[2])
+            
+            label_income.config(text=f"Total Income: ${income}")
+    except FileNotFoundError:
+        label_income.config(text="Total Income: $0")
+        
 root = tk.Tk()
 root.title("Barbershop")
 
@@ -52,6 +66,9 @@ label_cliente = tk.Label(root, text="Cliente:")
 label_cliente.grid(row=0, column=0, padx=10, pady=10)
 entry_cliente = tk.Entry(root)
 entry_cliente.grid(row=0, column=1, padx=10, pady=10)
+
+label_income = tk.Label(root, text="Total Income: $0", font=("Arial", 12, "bold"))	
+label_income.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
 label_corte = tk.Label(root, text="Tipo de Corte:")
 label_corte.grid(row=1, column=0, padx=10, pady=10)
@@ -75,5 +92,5 @@ button_mostrar.grid(row=4, column=0, columnspan=2, pady=10)
 text_registros = tk.Text(root, height=10, width=50, wrap=tk.WORD, state=tk.DISABLED)
 text_registros.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
 
-# Iniciar la aplicación
+update_income_display()
 root.mainloop()
