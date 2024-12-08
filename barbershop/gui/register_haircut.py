@@ -2,8 +2,9 @@ import csv
 from tkinter import messagebox
 import tkinter as tk
 from datetime import datetime
+from tkcalendar import Calendar, DateEntry
 
-def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float):
+def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float, calendar: Calendar):
     client = entry_cliente.get()
     haircut = entry_corte.get()
     try: 
@@ -12,7 +13,10 @@ def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float):
         messagebox.showerror("Error", "Prize must be a number")
         return
     
-    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    selected_date = calendar.get_date()
+
+
+    date = datetime.strptime(selected_date, "%m/%d/%Y").strftime("%Y-%m-%d")
     
     register = [client, haircut, prize, date]
     
