@@ -20,13 +20,14 @@ def show_table(data):
     frame = ttk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True)
 
-    table = ttk.Treeview(frame, columns=("Cliente", "Corte", "Precio", "Fecha"), show="headings")
+    table = ttk.Treeview(frame, columns=("Numero", "Cliente", "Corte", "Precio", "Fecha"), show="headings")
+    table.heading("Numero", text="Numero")
     table.heading("Cliente", text="Cliente")
     table.heading("Corte", text="Corte")
     table.heading("Precio", text="Precio")
     table.heading("Fecha", text="Fecha")
 
-    for row in data:
-        table.insert("", tk.END, values=row)
+    for i, row in enumerate(data, start=1):
+        table.insert("", tk.END, values=(i, *row))
 
     table.pack(fill=tk.BOTH, expand=True)

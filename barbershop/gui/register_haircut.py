@@ -3,7 +3,7 @@ from tkinter import messagebox
 import tkinter as tk
 from datetime import datetime
 
-def register_haircut(entry_cliente, entry_corte, entry_precio):
+def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float):
     client = entry_cliente.get()
     haircut = entry_corte.get()
     try: 
