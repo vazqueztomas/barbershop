@@ -23,10 +23,10 @@ entry_cliente.grid(row=0, column=1, padx=10, pady=10)
 label_fecha = generate_label(root, text="Fecha:", row=4, column=0)
 
 label_income = generate_label(
-    root, text="Total Income: $0", row=7, column=0, isBold=True
+    root, text="Total ganado: $0", row=7, column=0, isBold=True
 )
 label_total_haircuts = generate_label(
-    root, text="Total Haircuts: 0", row=7, column=2, isBold=True
+    root, text="Cortes realizados: 0", row=7, column=2, isBold=True
 )
 
 label_corte = generate_label(root, text="Tipo de Corte:", row=1, column=0)

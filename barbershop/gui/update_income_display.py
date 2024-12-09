@@ -12,8 +12,8 @@ def update_info_in_display(label_income: tk.Label, label_haircuts: tk.Label) -> 
                 income += float(fila[2])
                 total_haircuts += 1
             
-            label_income.config(text=f"Total Income: ${income}")
-            label_haircuts.config(text=f"Total Haircuts: {total_haircuts}")
+            label_income.config(text=f"Total ganado: ${income}")
+            label_haircuts.config(text=f"Cortes realizados: {total_haircuts}")
     except FileNotFoundError:
-        label_income.config(text="Total Income: $0")
+        label_income.config(text="Total ganado: $0")
         
