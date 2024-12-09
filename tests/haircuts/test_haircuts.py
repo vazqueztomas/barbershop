@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from barbershop.main import app
+from barbershop.app import app
 from barbershop.models import Haircut
 
 client = TestClient(app)

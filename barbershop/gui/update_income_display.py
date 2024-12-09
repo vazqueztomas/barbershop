@@ -1,5 +1,6 @@
 import csv
-def update_info_in_display(label_income, label_haircuts):
+import tkinter as tk
+def update_info_in_display(label_income: tk.Label, label_haircuts: tk.Label) -> None:
     try:
         with open("register_haircuts.csv", "r") as archive:
             reader = csv.reader(archive)

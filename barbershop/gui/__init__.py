@@ -1,3 +1,7 @@
-from .update_income_display import update_info_in_display
 
-__all__ = ["update_info_in_display"]
+
+from barbershop.gui.show_register import show_register
+
+
+def refresh_haircuts_list(text_registros):
+    show_register(text_registros)

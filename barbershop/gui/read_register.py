@@ -33,7 +33,7 @@ def show_table(data):
     table.pack(fill=tk.BOTH, expand=True)
     
 # Función para eliminar un corte seleccionado
-    def delete_selected_cut(table):
+    def delete_selected_cut():
         selected_item = table.selection()
         if not selected_item:
             messagebox.showwarning("Selección inválida", "Por favor, seleccione un corte para eliminar.")
@@ -43,23 +43,25 @@ def show_table(data):
         selected_row = table.item(selected_item[0])["values"]
         row_index = int(selected_row[0]) - 1  # La fila en la tabla corresponde a la posición en la lista
 
-        # Leer los registros
-        data = read_register()
+        # Eliminar la fila del archivo CSV
+        with open("register_haircuts.csv", "r") as archive:
+            rows = list(csv.reader(archive))
+        
+        with open("register_haircuts.csv", "w", newline="") as archive:
+            writer = csv.writer(archive)
+            for i, row in enumerate(rows):
+                if i != row_index:
+                    writer.writerow(row)
 
-        # Eliminar la fila correspondiente
-        if 0 <= row_index < len(data):
-            del data[row_index]
+        # Eliminar la fila de la tabla
+        table.delete(selected_item[0])
 
-            # Escribir de nuevo el archivo CSV sin la fila eliminada
-            with open("register_haircuts.csv", "w", newline="") as archive:
-                writer = csv.writer(archive)
-                writer.writerows(data)
+        # Actualizar los números de las filas en la tabla
+        for i, item in enumerate(table.get_children(), start=1):
+            table.item(item, values=(i, *table.item(item)["values"][1:]))
 
-            messagebox.showinfo("Corte Eliminado", "El corte de pelo ha sido eliminado correctamente.")  # Cerrar la ventana de la tabla
-            show_table(data)
-
-        delete_button = tk.Button(root, text="Eliminar Corte", command=lambda: delete_selected_cut)
-        delete_button.grid(pady=10)
-    root.mainloop()
+    # Botón para eliminar el corte seleccionado
+    button_delete = ttk.Button(frame, text="Eliminar Corte", command=delete_selected_cut)
+    button_delete.pack(pady=10)
 
     

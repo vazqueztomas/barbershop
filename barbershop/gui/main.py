@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
-from utils.generate_label import generate_label
-from update_income_display import update_info_in_display
-from register_haircut import register_haircut
-from show_register import show_register
-from read_register import read_register, show_table
+from barbershop.gui.utils.generate_label import generate_label
+from barbershop.gui.update_income_display import update_info_in_display
+from barbershop.gui.haircut_registration import register_new_haircut
+from barbershop.gui.show_register import show_register
+from barbershop.gui.read_register import read_register, show_table
 from tkcalendar import Calendar
 
 root = tk.Tk()
@@ -39,7 +39,7 @@ calendar.grid(row=4, column=1, padx=10, pady=10)
 button_registrar = ttk.Button(
     root,
     text="Registrar Corte",
-    command=lambda: register_haircut(label_income, label_total_haircuts, entry_cliente, entry_corte, entry_precio, calendar=calendar),
+    command=lambda: register_new_haircut(label_income, label_total_haircuts, entry_cliente, entry_corte, entry_precio, calendar=calendar),
     style="TButton",
 )
 button_registrar.grid(row=5, column=0, columnspan=3, pady=20, padx=10, sticky="ew")
@@ -47,8 +47,8 @@ button_registrar.grid(row=5, column=0, columnspan=3, pady=20, padx=10, sticky="e
 # Cuadro de texto para mostrar los registros
 text_registros = tk.Text(root, height=10, width=50, wrap=tk.WORD, state=tk.DISABLED)
 text_registros.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
-
-show_register(text_registros)
+def refresh_haircuts_list():
+    show_register(text_registros)
 
 # Botón para mostrar la tabla
 button_mostrar_tabla = ttk.Button(
@@ -59,5 +59,6 @@ button_mostrar_tabla.grid(row=6, column=0, padx=10, pady=10, sticky="ew")
 
 # Actualizar los ingresos
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
+refresh_haircuts_list()
 
 root.mainloop()
