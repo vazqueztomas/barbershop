@@ -16,6 +16,42 @@ def read_register() -> list[list[str]]:
         return []
 
 
+def _delete_selected_cut(
+    table: ttk.Treeview, label_income: tk.Label, label_total_haircuts: tk.Label
+) -> None:
+    selected_item = table.selection()
+    if not selected_item:
+        messagebox.showwarning(  # type: ignore
+            "Selección inválida", "Por favor, seleccione un corte para eliminar."
+        )  # type: ignore
+        return
+
+    # Obtener el índice de la fila seleccionada
+    selected_row = table.item(selected_item[0])["values"]
+    row_index = (
+        int(selected_row[0]) - 1
+    )  # La fila en la tabla corresponde a la posición en la lista
+
+    # Eliminar la fila del archivo CSV
+    with open("register_haircuts.csv", "r") as archive:
+        rows = list(csv.reader(archive))
+
+    with open("register_haircuts.csv", "w", newline="") as archive:
+        writer = csv.writer(archive)
+        for i, row in enumerate(rows):
+            if i != row_index:
+                writer.writerow(row)
+
+    table.delete(selected_item[0])
+
+    for i, item in enumerate(table.get_children(), start=1):
+        table.item(item, values=(i, *table.item(item)["values"][1:]))
+
+    update_info_in_display(
+        label_income=label_income, label_haircuts=label_total_haircuts
+    )
+
+
 def show_table(
     data: list[list[str]], label_income: tk.Label, label_total_haircuts: tk.Label
 ) -> None:
@@ -41,44 +77,8 @@ def show_table(
 
     table.pack(fill=tk.BOTH, expand=True)
 
-    # Función para eliminar un corte seleccionado
-    def delete_selected_cut():
-        selected_item = table.selection()
-        if not selected_item:
-            messagebox.showwarning(  # type: ignore
-                "Selección inválida", "Por favor, seleccione un corte para eliminar."
-            )  # type: ignore
-            return
-
-        # Obtener el índice de la fila seleccionada
-        selected_row = table.item(selected_item[0])["values"]
-        row_index = (
-            int(selected_row[0]) - 1
-        )  # La fila en la tabla corresponde a la posición en la lista
-
-        # Eliminar la fila del archivo CSV
-        with open("register_haircuts.csv", "r") as archive:
-            rows = list(csv.reader(archive))
-
-        with open("register_haircuts.csv", "w", newline="") as archive:
-            writer = csv.writer(archive)
-            for i, row in enumerate(rows):
-                if i != row_index:
-                    writer.writerow(row)
-
-        # Eliminar la fila de la tabla
-        table.delete(selected_item[0])
-
-        # Actualizar los números de las filas en la tabla
-        for i, item in enumerate(table.get_children(), start=1):
-            table.item(item, values=(i, *table.item(item)["values"][1:]))
-
-        update_info_in_display(
-            label_income=label_income, label_haircuts=label_total_haircuts
-        )
-
     # Botón para eliminar el corte seleccionado
     button_delete = ttk.Button(
-        frame, text="Eliminar Corte", command=delete_selected_cut
+        frame, text="Eliminar Corte", command=lambda: _delete_selected_cut(table, label_income, label_total_haircuts)
     )
     button_delete.pack(pady=10)
