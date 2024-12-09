@@ -5,9 +5,9 @@ from tkinter import messagebox, ttk
 from barbershop.gui.update_income_display import update_info_in_display
 
 
-def read_register() -> list[list[str]]:
+def read_register(file_path: str) -> list[list[str]]:
     try:
-        with open("register_haircuts.csv", "r") as archive:
+        with open(file_path, "r") as archive:
             reader = csv.reader(archive)
             data = [row for row in reader]
             return data

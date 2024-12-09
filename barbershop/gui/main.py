@@ -6,7 +6,7 @@ from barbershop.gui.haircut_registration import register_new_haircut
 from barbershop.gui.show_register import show_register
 from barbershop.gui.read_register import read_register, show_table
 from tkcalendar import Calendar  # type: ignore
-
+from barbershop.gui.constants import FILE_PATH
 
 def refresh_haircuts_list():
     show_register(text_registros)
@@ -71,7 +71,7 @@ button_mostrar_tabla = ttk.Button(
     root,
     text="Cortes",
     command=lambda: show_table(
-        read_register(),
+        read_register(FILE_PATH),
         label_income=label_income,
         label_total_haircuts=label_total_haircuts,
     ),
