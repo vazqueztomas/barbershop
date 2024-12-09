@@ -7,6 +7,11 @@ from barbershop.gui.show_register import show_register
 from barbershop.gui.read_register import read_register, show_table
 from tkcalendar import Calendar  # type: ignore
 
+
+def refresh_haircuts_list():
+    show_register(text_registros)
+
+
 root = tk.Tk()
 root.title("Barbershop")
 
@@ -42,7 +47,7 @@ calendar.grid(row=4, column=1, padx=10, pady=10)  # type: ignore
 # Botón para registrar el corte de pelo
 button_registrar = ttk.Button(
     root,
-    text="Registrar Corte",
+    text="Registrar nuevo corte",
     command=lambda: register_new_haircut(
         label_income,
         label_total_haircuts,
@@ -61,13 +66,16 @@ text_registros = tk.Text(root, height=10, width=50, wrap=tk.WORD, state=tk.DISAB
 text_registros.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
 
 
-def refresh_haircuts_list():
-    show_register(text_registros)
-
-
 # Botón para mostrar la tabla
 button_mostrar_tabla = ttk.Button(
-    root, text="Mostrar Tabla", command=lambda: show_table(read_register())
+    root,
+    text="Cortes",
+    command=lambda: show_table(
+        read_register(),
+        label_income=label_income,
+        label_total_haircuts=label_total_haircuts,
+    ),
+    style="TButton",
 )
 button_mostrar_tabla.grid(row=6, column=0, padx=10, pady=10, sticky="ew")
 

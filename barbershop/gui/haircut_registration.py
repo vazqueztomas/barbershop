@@ -21,7 +21,7 @@ def register_new_haircut(
     try:
         prize = float(entry_precio.get())
     except ValueError:
-        messagebox.showerror("Error", "Prize must be a number") # type: ignore
+        messagebox.showerror("Error", "El precio debe ser un numero") # type: ignore
         return
 
     selected_date = calendar.get_date()
@@ -41,5 +41,5 @@ def register_new_haircut(
     update_info_in_display(label_income, label_total_haircuts)
     refresh_haircuts_list(text_registros=text_registros)
     messagebox.showinfo( # type: ignore
-        "Register successfully", f"Haircut registered - Client: {client}"
+        "Corte registrado", f"Corte registrado - Cliente: {client}"
     )
