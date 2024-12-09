@@ -2,9 +2,10 @@ import csv
 from tkinter import messagebox
 import tkinter as tk
 from datetime import datetime
-from tkcalendar import Calendar, DateEntry
+from tkcalendar import Calendar
+from update_income_display import update_info_in_display
 
-def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float, calendar: Calendar):
+def register_haircut(label_income, label_total_haircuts ,entry_cliente: str, entry_corte: str, entry_precio: float, calendar: Calendar):
     client = entry_cliente.get()
     haircut = entry_corte.get()
     try: 
@@ -28,5 +29,6 @@ def register_haircut(entry_cliente: str, entry_corte: str, entry_precio: float, 
     entry_corte.delete(0, tk.END)
     entry_precio.delete(0, tk.END)
     
+    update_info_in_display(label_income, label_total_haircuts)
     messagebox.showinfo("Register successfully", f"Haircut registered - Client: {client}")
     

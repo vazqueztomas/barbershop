@@ -1,3 +1,3 @@
-from .update_income_display import update_income_display
+from .update_income_display import update_info_in_display
 
-__all__ = ["update_income_display"]
+__all__ = ["update_info_in_display"]

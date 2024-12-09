@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from utils.generate_label import generate_label
-from update_income_display import update_income_display
+from update_income_display import update_info_in_display
 from register_haircut import register_haircut
 from show_register import show_register
 from read_register import read_register, show_table
@@ -39,7 +39,7 @@ calendar.grid(row=4, column=1, padx=10, pady=10)
 button_registrar = ttk.Button(
     root,
     text="Registrar Corte",
-    command=lambda: register_haircut(entry_cliente, entry_corte, entry_precio, calendar=calendar),
+    command=lambda: register_haircut(label_income, label_total_haircuts, entry_cliente, entry_corte, entry_precio, calendar=calendar),
     style="TButton",
 )
 button_registrar.grid(row=5, column=0, columnspan=3, pady=20, padx=10, sticky="ew")
@@ -56,7 +56,8 @@ button_mostrar_tabla = ttk.Button(
 )
 button_mostrar_tabla.grid(row=6, column=0, padx=10, pady=10, sticky="ew")
 
+
 # Actualizar los ingresos
-update_income_display(label_income=label_income, label_haircuts=label_total_haircuts)
+update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
 
 root.mainloop()

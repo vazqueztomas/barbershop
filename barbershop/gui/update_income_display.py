@@ -1,5 +1,5 @@
 import csv
-def update_income_display(label_income, label_haircuts):
+def update_info_in_display(label_income, label_haircuts):
     try:
         with open("register_haircuts.csv", "r") as archive:
             reader = csv.reader(archive)
