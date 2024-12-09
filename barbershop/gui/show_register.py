@@ -2,7 +2,7 @@ import csv
 from tkinter import messagebox
 import tkinter as tk
 
-def show_register(text_registros):
+def show_register(text_registros: tk.Text) -> None:
     try:
         with open("register_haircuts.csv", "r") as archive:
             reader = csv.reader(archive)
@@ -19,5 +19,5 @@ def show_register(text_registros):
             text_registros.config(state=tk.DISABLED)  # Deshabilitar el cuadro de texto para evitar edición
     
     except FileNotFoundError:
-        messagebox.showerror("Error", "Aún no hay registros de cortes de pelo.")
+        messagebox.showerror("Error", "Aún no hay registros de cortes de pelo.") # type: ignore
         

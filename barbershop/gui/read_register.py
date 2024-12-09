@@ -3,17 +3,17 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 
-def read_register():
+def read_register() -> list[list[str]]:
     try:
         with open("register_haircuts.csv", "r") as archive:
             reader = csv.reader(archive)
             data = [row for row in reader]
             return data
     except FileNotFoundError:
-        messagebox.showerror("Error", "There are no haircut records yet.")
+        messagebox.showerror("Error", "There are no haircut records yet.") # type: ignore
         return []
     
-def show_table(data):
+def show_table(data: list[list[str]]) -> None:
     root = tk.Tk()
     root.title("Registro de Cortes de Pelo")
 
@@ -36,7 +36,7 @@ def show_table(data):
     def delete_selected_cut():
         selected_item = table.selection()
         if not selected_item:
-            messagebox.showwarning("Selección inválida", "Por favor, seleccione un corte para eliminar.")
+            messagebox.showwarning("Selección inválida", "Por favor, seleccione un corte para eliminar.") # type: ignore
             return
 
         # Obtener el índice de la fila seleccionada
