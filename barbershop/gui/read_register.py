@@ -60,17 +60,18 @@ def show_table(
 
     frame = ttk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True)
+    
+    columns = ("Numero", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
     table = ttk.Treeview(
         frame,
-        columns=("Numero", "Cliente", "Corte", "Precio", "Fecha"),
+        columns=columns,
         show="headings",
     )
-    table.heading("Numero", text="Numero")
-    table.heading("Cliente", text="Cliente")
-    table.heading("Corte", text="Corte")
-    table.heading("Precio", text="Precio")
-    table.heading("Fecha", text="Fecha")
+    
+    for col in columns:
+        table.heading(col, text=col)
+        table.column(col, width=100, anchor=tk.CENTER)
 
     for i, row in enumerate(data, start=1):
         table.insert("", tk.END, values=(i, *row))

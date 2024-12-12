@@ -35,15 +35,25 @@ entry_corte.grid(row=1, column=1, padx=10, pady=10)
 
 label_precio = generate_label(root, text="Precio:", row=2, column=0)
 entry_precio = tk.Entry(root)
-entry_precio.grid(row=2, column=1, padx=2, pady=2)
+entry_precio.grid(row=2, column=1)
 
 
 style = ttk.Style()
 style.configure("TButton", font=("Comic Sans", 12), padding=5)  # type: ignore
 
+## calendario
+
 calendar = Calendar(root, selectmode="day", date_pattern="mm/dd/yyyy")
 calendar.grid(row=4, column=1, padx=10, pady=10)  # type: ignore
 
+selected_option = tk.IntVar()
+checkbox_pelo = ttk.Radiobutton(root, text="Pelo", variable=selected_option, value=1)
+checkbox_pelo.grid(row=2, column=2)  # type: ignore
+checkbox_pelo_y_barba = ttk.Radiobutton(root, text="Pelo y Barba", variable=selected_option, value=2)
+checkbox_pelo_y_barba.grid(row=2, column=3)  # type: ignore
+
+checkbox_barba = ttk.Radiobutton(root, text="Barba", variable=selected_option, value=3)
+checkbox_barba.grid(row=2, column=4)  # type: ignore
 # Botón para registrar el corte de pelo
 button_registrar = ttk.Button(
     root,
@@ -56,6 +66,9 @@ button_registrar = ttk.Button(
         entry_precio,
         calendar=calendar,
         text_registros=text_registros,
+        checkbox_pelo=checkbox_pelo,
+        checkbox_pelo_y_barba=checkbox_pelo_y_barba,
+        checkbox_barba=checkbox_barba,
     ),
     style="TButton",
 )
