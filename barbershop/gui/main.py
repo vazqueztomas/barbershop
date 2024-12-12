@@ -31,7 +31,7 @@ label_total_haircuts = generate_label(
 
 label_corte = generate_label(root, text="Tipo de Corte:", row=1, column=0)
 entry_corte = ctk.CTkEntry(root)
-entry_corte.grid(row=1, column=1, padx=10, pady=10) # type: ignore
+entry_corte.grid(row=1, column=1,  pady=10) # type: ignore
 
 label_precio = generate_label(root, text="Precio:", row=2, column=0)
 entry_precio = ctk.CTkEntry(root)
@@ -43,12 +43,14 @@ calendar.grid(row=4, column=1, padx=10, pady=10)  # type: ignore
 
 selected_option = tk.IntVar()
 rb_pelo = ctk.CTkRadioButton(root, text="Pelo", variable=selected_option, value=1)
-rb_pelo.grid(row=2, column=2)  # type: ignore
+rb_pelo.grid(row=3, column=0,padx=10, pady=10)  # type: ignore
+
 rb_pelo_y_barba = ctk.CTkRadioButton(root, text="Pelo y Barba", variable=selected_option, value=2)
-rb_pelo_y_barba.grid(row=2, column=3)  # type: ignore
+rb_pelo_y_barba.grid(row=3, column=1, padx=10, pady=10)  # type: ignore
 
 rb_barba = ctk.CTkRadioButton(root, text="Barba", variable=selected_option, value=3)
-rb_barba.grid(row=2, column=4)  # type: ignore
+rb_barba.grid(row=3, column=2, padx=10, pady=10)  # type: ignore
+
 # Botón para registrar el corte de pelo
 button_registrar = ctk.CTkButton(
     root,
