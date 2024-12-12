@@ -1,16 +1,18 @@
 import csv
-from tkinter import messagebox, ttk
+from tkinter import messagebox
 import tkinter as tk
 from datetime import datetime
 from tkcalendar import Calendar  # type: ignore
 from barbershop.gui import refresh_haircuts_list
 from barbershop.gui.update_income_display import update_info_in_display
 
+import customtkinter as ctk #type: ignore
+
 
 def get_selected_option(
-    checkbox_pelo: ttk.Radiobutton,
-    checkbox_pelo_y_barba: ttk.Radiobutton,
-    checkbox_barba: ttk.Radiobutton,
+    checkbox_pelo: ctk.CTkRadioButton,
+    checkbox_pelo_y_barba: ctk.CTkRadioButton,
+    checkbox_barba: ctk.CTkRadioButton,
 ):
     if checkbox_pelo.instate(["selected"]):  # type: ignore
         return "Pelo"
@@ -22,16 +24,16 @@ def get_selected_option(
 
 
 def register_new_haircut(
-    label_income: tk.Label,
-    label_total_haircuts: tk.Label,
-    entry_cliente: tk.Entry,
-    entry_corte: tk.Entry,
-    entry_precio: tk.Entry,
+    label_income: ctk.CTkLabel,
+    label_total_haircuts: ctk.CTkLabel,
+    entry_cliente: ctk.CTkEntry,
+    entry_corte: ctk.CTkEntry,
+    entry_precio: ctk.CTkEntry,
     calendar: Calendar,
     text_registros: tk.Text,
-    checkbox_pelo: ttk.Radiobutton,
-    checkbox_pelo_y_barba: ttk.Radiobutton,
-    checkbox_barba: ttk.Radiobutton,
+    checkbox_pelo: ctk.CTkRadioButton,
+    checkbox_pelo_y_barba: ctk.CTkRadioButton,
+    checkbox_barba: ctk.CTkRadioButton,
 ):
     client = entry_cliente.get()
     haircut = entry_corte.get()
@@ -55,9 +57,9 @@ def register_new_haircut(
         writer.writerow(register)
         print(register)
 
-    entry_cliente.delete(0, tk.END)
-    entry_corte.delete(0, tk.END)
-    entry_precio.delete(0, tk.END)
+    entry_cliente.delete(0, tk.END) #type: ignore
+    entry_corte.delete(0, tk.END) #type: ignore
+    entry_precio.delete(0, tk.END) #type: ignore
 
     update_info_in_display(label_income, label_total_haircuts)
     refresh_haircuts_list(text_registros=text_registros)

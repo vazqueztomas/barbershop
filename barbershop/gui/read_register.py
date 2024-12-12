@@ -3,7 +3,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from barbershop.gui.update_income_display import update_info_in_display
-
+ 
+import customtkinter as ctk #type: ignore
 
 def read_register(file_path: str) -> list[list[str]]:
     try:
@@ -17,7 +18,7 @@ def read_register(file_path: str) -> list[list[str]]:
 
 
 def _delete_selected_cut(
-    table: ttk.Treeview, label_income: tk.Label, label_total_haircuts: tk.Label
+    table: ttk.Treeview, label_income: ctk.CTkLabel, label_total_haircuts: ctk.CTkLabel
 ) -> None:
     selected_item = table.selection()
     if not selected_item:
@@ -51,9 +52,8 @@ def _delete_selected_cut(
         label_income=label_income, label_haircuts=label_total_haircuts
     )
 
-
 def show_table(
-    data: list[list[str]], label_income: tk.Label, label_total_haircuts: tk.Label
+    data: list[list[str]], label_income: ctk.CTkLabel, label_total_haircuts: ctk.CTkLabel
 ) -> None:
     root = tk.Tk()
     root.title("Registro de Cortes de Pelo")

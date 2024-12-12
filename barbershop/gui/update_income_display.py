@@ -1,7 +1,7 @@
 import csv
-import tkinter as tk
+import customtkinter as ctk #type: ignore
 
-def update_info_in_display(label_income: tk.Label, label_haircuts: tk.Label) -> None:
+def update_info_in_display(label_income: ctk.CTkLabel, label_haircuts: ctk.CTkLabel) -> None:
     try:
         with open("register_haircuts.csv", "r") as archive:
             reader = csv.reader(archive)
@@ -12,8 +12,8 @@ def update_info_in_display(label_income: tk.Label, label_haircuts: tk.Label) -> 
                 income += float(fila[2])
                 total_haircuts += 1
             
-            label_income.config(text=f"Total ganado: ${income}")
-            label_haircuts.config(text=f"Cortes realizados: {total_haircuts}")
+            label_income.configure(text=f"Total ganado: ${income}") #type: ignore
+            label_haircuts.configure(text=f"Cortes realizados: {total_haircuts}") #type: ignore 
     except FileNotFoundError:
-        label_income.config(text="Total ganado: $0")
+        label_income.configure(text="Total ganado: $0")#type: ignore 
         
