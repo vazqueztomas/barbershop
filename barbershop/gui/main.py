@@ -8,6 +8,7 @@ from barbershop.gui.show_historico import show_historico
 from tkcalendar import Calendar  # type: ignore
 from barbershop.gui.constants import FILE_PATH
 import customtkinter as ctk  # type: ignore
+from tkinter import ttk
 
 
 def refresh_haircuts_list():
@@ -43,15 +44,15 @@ calendar = Calendar(root, selectmode="day", date_pattern="mm/dd/yyyy")
 calendar.grid(row=4, column=1, padx=10, pady=10)  # type: ignore
 
 selected_option = tk.IntVar()
-rb_pelo = ctk.CTkRadioButton(root, text="Pelo", variable=selected_option, value=1)
+rb_pelo = ttk.Radiobutton(root, text="Pelo", variable=selected_option, value=1)
 rb_pelo.grid(row=3, column=0, padx=10, pady=10)  # type: ignore
 
-rb_pelo_y_barba = ctk.CTkRadioButton(
+rb_pelo_y_barba = ttk.Radiobutton(
     root, text="Pelo y Barba", variable=selected_option, value=2
 )
 rb_pelo_y_barba.grid(row=3, column=1, padx=10, pady=10)  # type: ignore
 
-rb_barba = ctk.CTkRadioButton(root, text="Barba", variable=selected_option, value=3)
+rb_barba = ttk.Radiobutton(root, text="Barba", variable=selected_option, value=3)
 rb_barba.grid(row=3, column=2, padx=10, pady=10)  # type: ignore
 
 button_registrar = ctk.CTkButton(
