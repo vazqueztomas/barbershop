@@ -62,5 +62,21 @@ def show_historico():
 
     label_total_month = ttk.Label(window, text="Total del mes: $0")
     label_total_month.pack()
+    
+    def filter_by_type():
+        selected_option = combobox_type.get()
+        tree.delete(*tree.get_children())
+        with open("register_haircuts.csv", "r") as archive:
+            for row in archive:
+                row = row.strip().split(",")
+                if row[4] == selected_option:
+                    tree.insert("", tk.END, values=row)
+                    
+    label_by_type = ttk.Label(window, text="Filtrar por tipo de corte")
+    label_by_type.pack()
+    combobox_type = ttk.Combobox(window, values=["Pelo", "Pelo y Barba", "Barba"])
+    combobox_type.pack()
+    button_filter = ttk.Button(window, text="Filtrar por tipo", command=filter_by_type)
+    button_filter.pack()
 
     window.mainloop()
