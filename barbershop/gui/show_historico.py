@@ -5,64 +5,35 @@ from tkinter import ttk, messagebox
 def show_historico():
     window = tk.Tk()
     window.title("Historico")
-    window.geometry("800x600")
     window.config(bg="white")
-
-    tree = ttk.Treeview(
-        window, columns=("Cliente", "Corte", "Precio", "Fecha", "Tipo"), show="headings"
-    )
-    tree.heading("Cliente", text="Cliente")
-    tree.heading("Corte", text="Corte")
-    tree.heading("Precio", text="Precio")
-    tree.heading("Fecha", text="Fecha")
-    tree.pack()
+    columns = ("Cliente", "Corte", "Precio", "Fecha", "Tipo")
+    tree = ttk.Treeview(window, columns=columns, show="headings")
+    for column in columns:
+        tree.heading(column, text=column)
+    tree.grid(row=0, column=0, columnspan=4)
 
     with open("register_haircuts.csv", "r") as archive:
         for row in archive:
             row = row.strip().split(",")
             tree.insert("", tk.END, values=row)
 
+    def filter_by_date_part(date_part_index: int, value: str):
+        tree.delete(*tree.get_children())
+        with open("register_haircuts.csv", "r") as archive:
+            for row in archive:
+                row = row.strip().split(",")
+                if row[3].split("-")[date_part_index] == value:
+                    tree.insert("", tk.END, values=row)
+
     # Filter by month
     def filter_by_month():
         month = entry_month.get()
-        tree.delete(*tree.get_children())
-        with open("register_haircuts.csv", "r") as archive:
-            for row in archive:
-                row = row.strip().split(",")
-                if row[3].split("-")[1] == month:
-                    tree.insert("", tk.END, values=row)
-
-        show_total_month()
-
-    entry_month = ttk.Entry(window)
-    entry_month.pack()
-    button_filter = ttk.Button(window, text="Filtrar por mes", command=filter_by_month)
-    button_filter.pack()
+        filter_by_date_part(1, month)
 
     def filter_by_day():
         day = entry_day.get()
-        tree.delete(*tree.get_children())
-        with open("register_haircuts.csv", "r") as archive:
-            for row in archive:
-                row = row.strip().split(",")
-                if row[3].split("-")[2] == day:
-                    tree.insert("", tk.END, values=row)
+        filter_by_date_part(2, day)
 
-    entry_day = ttk.Entry(window)
-    entry_day.pack()
-    button_filter = ttk.Button(window, text="Filtrar por dia", command=filter_by_day)
-    button_filter.pack()
-
-    # Show total month in a label automatically when filter by month
-    def show_total_month():
-        total = 0
-        for child in tree.get_children():
-            total += float(tree.item(child)["values"][2])
-        label_total_month.config(text=f"Total del mes: ${total}")
-
-    label_total_month = ttk.Label(window, text="Total del mes: $0")
-    label_total_month.pack()
-    
     def filter_by_type():
         selected_option = combobox_type.get()
         tree.delete(*tree.get_children())
@@ -71,12 +42,24 @@ def show_historico():
                 row = row.strip().split(",")
                 if row[4] == selected_option:
                     tree.insert("", tk.END, values=row)
-                    
-    label_by_type = ttk.Label(window, text="Filtrar por tipo de corte")
-    label_by_type.pack()
+
+    entry_month = ttk.Entry(window)
+    entry_month.grid(row=1, column=0, padx=10, pady=10)
+    button_filter_by_month = ttk.Button(
+        window, text="Filtrar por mes", command=filter_by_month
+    )
+    button_filter_by_month.grid(row=3, column=0)
+
+    entry_day = ttk.Entry(window)
+    entry_day.grid(row=1, column=2)
+    button_filter = ttk.Button(window, text="Filtrar por dia", command=filter_by_day)
+    button_filter.grid(row=3, column=2)
+
     combobox_type = ttk.Combobox(window, values=["Pelo", "Pelo y Barba", "Barba"])
-    combobox_type.pack()
-    button_filter = ttk.Button(window, text="Filtrar por tipo", command=filter_by_type)
-    button_filter.pack()
+    combobox_type.grid(row=1, column=1)
+    button_filter_by_type = ttk.Button(
+        window, text="Filtrar por tipo", command=filter_by_type
+    )
+    button_filter_by_type.grid(row=3, column=1)
 
     window.mainloop()
