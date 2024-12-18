@@ -2,8 +2,10 @@ import csv
 from tkinter import messagebox, ttk
 import tkinter as tk
 from datetime import datetime
+from pydantic import ValidationError
 from tkcalendar import Calendar  # type: ignore
 from barbershop.gui.update_information_in_display import update_info_in_display
+from barbershop.models import Haircut
 
 import customtkinter as ctk  # type: ignore
 
@@ -38,22 +40,30 @@ def register_new_haircut(
     selected_option = get_selected_option(
         checkbox_pelo, checkbox_pelo_y_barba, checkbox_barba
     )
-    try:
-        prize = float(entry_precio.get())
-    except ValueError:
-        messagebox.showerror("Error", "El precio debe ser un numero")  # type: ignore
-        return
+    prize = float(entry_precio.get())
 
     selected_date = calendar.get_date()
 
     date = datetime.strptime(selected_date, "%m/%d/%Y").strftime("%Y-%m-%d")
 
-    register: list[str | float] = [client, haircut, prize, date, selected_option]
+    try:
+        haircut_data = Haircut(
+            client=client,
+            haircut=haircut,
+            prize=prize,
+            date=date,
+            selected_option=selected_option,
+        )
+    except ValidationError as e:
+        messagebox.showerror("Error", str(e))
+        print(e)
+        return
 
     with open("register_haircuts.csv", "a", newline="") as archive:
         writer = csv.writer(archive)
-        writer.writerow(register)
-        print(register)
+
+        writer.writerow(haircut_data.model_dump().values())
+        print(haircut_data.model_dump(exclude={"id"}).values())
 
     entry_cliente.delete(0, tk.END)  # type: ignore
     entry_corte.delete(0, tk.END)  # type: ignore

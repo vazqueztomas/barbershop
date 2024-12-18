@@ -9,7 +9,8 @@ def update_info_in_display(label_income: ctk.CTkLabel, label_haircuts: ctk.CTkLa
             income = 0
             total_haircuts = 0
             for fila in reader:
-                income += float(fila[2])
+                print(fila)
+                income += float(fila[3])
                 total_haircuts += 1
             
             label_income.configure(text=f"Total ganado: ${income}") #type: ignore
