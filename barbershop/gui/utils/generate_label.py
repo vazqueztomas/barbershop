@@ -9,5 +9,5 @@ def generate_label(
     else:
         label = ctk.CTkLabel(place, text=text)
 
-    label.grid(row=row, column=column, padx=2, pady=2) # type: ignore
+    label.grid(row=row, column=column, padx=10, pady=10) # type: ignore
     return label
