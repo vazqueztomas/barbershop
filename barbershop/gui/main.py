@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from barbershop.gui.utils.update_tree_view import update_tree_view
 from barbershop.gui.utils.generate_label import generate_label
 from barbershop.gui.update_information_in_display import update_info_in_display
@@ -10,7 +11,7 @@ from barbershop.gui.constants import FILE_PATH
 import customtkinter as ctk  # type: ignore
 from tkinter import ttk
 
-columns = ("Cliente", "Corte", "Precio", "Fecha", "Tipo")
+columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
 root = ctk.CTk()
 root.title("Barbershop")
@@ -60,6 +61,13 @@ rb_pelo_y_barba.grid(row=3, column=1, padx=10, pady=10)  # type: ignore
 rb_barba = ttk.Radiobutton(root, text="Barba", variable=selected_option, value=3)
 rb_barba.grid(row=3, column=2, padx=10, pady=10)  # type: ignore
 
+button_show_graphics = ctk.CTkButton(
+    root,
+    text="Mostrar Graficos",
+    command=lambda: messagebox.showinfo("Info", "No implementado"),
+)
+button_show_graphics.grid(row=0, column=2, padx=10, pady=10)  # type: ignore
+
 button_registrar = ctk.CTkButton(
     root,
     text="Registrar nuevo corte",
@@ -96,12 +104,11 @@ with open("register_haircuts.csv", "r") as archive:
 
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
 
-
 button_delete = ttk.Button(
     root,
     text="Eliminar Corte",
     command=lambda: remove_cuts_from_table(tree, label_income, label_total_haircuts),
 )
-button_delete.grid(row=9, column=0, columnspan=4, padx=10, pady=10, sticky="ew")  # type: ignore
+button_delete.grid(row=9, column=0, columnspan=4, padx=10, pady=10)  # type: ignore
 
 root.mainloop()  # type: ignore
