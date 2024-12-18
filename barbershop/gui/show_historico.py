@@ -1,21 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
 
-def show_historico():
+def show_historico(root: tk.Tk, tree: ttk.Treeview):
     window = tk.Tk()
-    window.title("Historico")
-    window.config(bg="white")
-    columns = ("Cliente", "Corte", "Precio", "Fecha", "Tipo")
-    tree = ttk.Treeview(window, columns=columns, show="headings")
-    for column in columns:
-        tree.heading(column, text=column)
-    tree.grid(row=0, column=0, columnspan=4)
-
-    with open("register_haircuts.csv", "r") as archive:
-        for row in archive:
-            row = row.strip().split(",")
-            tree.insert("", tk.END, values=row)
+    window.title("Historico de cortes")
 
     def filter_by_date_part(date_part_index: int, value: str):
         tree.delete(*tree.get_children())
@@ -61,5 +50,3 @@ def show_historico():
         window, text="Filtrar por tipo", command=filter_by_type
     )
     button_filter_by_type.grid(row=3, column=1)
-
-    window.mainloop()

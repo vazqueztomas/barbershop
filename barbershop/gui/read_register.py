@@ -1,10 +1,10 @@
 import csv
-import tkinter as tk
 from tkinter import messagebox, ttk
 
-from barbershop.gui.update_income_display import update_info_in_display
- 
-import customtkinter as ctk #type: ignore
+from barbershop.gui.update_information_in_display import update_info_in_display
+
+import customtkinter as ctk  # type: ignore
+
 
 def read_register(file_path: str) -> list[list[str]]:
     try:
@@ -17,30 +17,25 @@ def read_register(file_path: str) -> list[list[str]]:
         return []
 
 
-def _delete_selected_cut(
+def remove_cuts_from_table(
     table: ttk.Treeview, label_income: ctk.CTkLabel, label_total_haircuts: ctk.CTkLabel
-) -> None:
+):
     selected_item = table.selection()
     if not selected_item:
         messagebox.showwarning(  # type: ignore
             "Selección inválida", "Por favor, seleccione un corte para eliminar."
-        )  # type: ignore
+        )
         return
 
-    # Obtener el índice de la fila seleccionada
     selected_row = table.item(selected_item[0])["values"]
-    row_index = (
-        int(selected_row[0]) - 1
-    )  # La fila en la tabla corresponde a la posición en la lista
 
-    # Eliminar la fila del archivo CSV
     with open("register_haircuts.csv", "r") as archive:
         rows = list(csv.reader(archive))
 
     with open("register_haircuts.csv", "w", newline="") as archive:
         writer = csv.writer(archive)
-        for i, row in enumerate(rows):
-            if i != row_index:
+        for row in rows:
+            if row != selected_row:
                 writer.writerow(row)
 
     table.delete(selected_item[0])
@@ -51,35 +46,3 @@ def _delete_selected_cut(
     update_info_in_display(
         label_income=label_income, label_haircuts=label_total_haircuts
     )
-
-def show_table(
-    data: list[list[str]], label_income: ctk.CTkLabel, label_total_haircuts: ctk.CTkLabel
-) -> None:
-    root = tk.Tk()
-    root.title("Registro de Cortes de Pelo")
-
-    frame = ttk.Frame(root)
-    frame.pack(fill=tk.BOTH, expand=True)
-    
-    columns = ("Numero", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
-
-    table = ttk.Treeview(
-        frame,
-        columns=columns,
-        show="headings",
-    )
-    
-    for col in columns:
-        table.heading(col, text=col)
-        table.column(col, width=100, anchor=tk.CENTER)
-
-    for i, row in enumerate(data, start=1):
-        table.insert("", tk.END, values=(i, *row))
-
-    table.pack(fill=tk.BOTH, expand=True)
-
-    # Botón para eliminar el corte seleccionado
-    button_delete = ttk.Button(
-        frame, text="Eliminar Corte", command=lambda: _delete_selected_cut(table, label_income, label_total_haircuts)
-    )
-    button_delete.pack(pady=10)

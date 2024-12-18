@@ -3,8 +3,7 @@ from tkinter import messagebox, ttk
 import tkinter as tk
 from datetime import datetime
 from tkcalendar import Calendar  # type: ignore
-from barbershop.gui import refresh_haircuts_list
-from barbershop.gui.update_income_display import update_info_in_display
+from barbershop.gui.update_information_in_display import update_info_in_display
 
 import customtkinter as ctk  # type: ignore
 
@@ -30,7 +29,6 @@ def register_new_haircut(
     entry_corte: ctk.CTkEntry,
     entry_precio: ctk.CTkEntry,
     calendar: Calendar,
-    text_registros: tk.Text,
     checkbox_pelo: ttk.Radiobutton,
     checkbox_pelo_y_barba: ttk.Radiobutton,
     checkbox_barba: ttk.Radiobutton,
@@ -62,7 +60,6 @@ def register_new_haircut(
     entry_precio.delete(0, tk.END)  # type: ignore
 
     update_info_in_display(label_income, label_total_haircuts)
-    refresh_haircuts_list(text_registros=text_registros)
     messagebox.showinfo(  # type: ignore
         "Corte registrado", f"Corte registrado - Cliente: {client}"
     )
