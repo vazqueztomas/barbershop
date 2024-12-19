@@ -11,9 +11,10 @@ def test_register_new_haircut():
         calendar="Test",
         text_registros="Test",
     )
-    
+
     assert True
-    
+
+
 def test_register_new_haircut_with_no_prize():
     register = register_new_haircut(
         label_income="test",
@@ -24,6 +25,5 @@ def test_register_new_haircut_with_no_prize():
         calendar="Test",
         text_registros="Test",
     )
-    
-    assert not register 
-    
+
+    assert not register

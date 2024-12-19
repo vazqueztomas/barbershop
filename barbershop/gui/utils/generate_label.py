@@ -1,5 +1,6 @@
 import tkinter as tk
-import customtkinter as ctk #type: ignore
+import customtkinter as ctk  # type: ignore
+
 
 def generate_label(
     place: tk.Misc, text: str, row: int, column: int, isBold: bool = False
@@ -9,5 +10,5 @@ def generate_label(
     else:
         label = ctk.CTkLabel(place, text=text)
 
-    label.grid(row=row, column=column, padx=10, pady=10) # type: ignore
+    label.grid(row=row, column=column, padx=10, pady=10)  # type: ignore
     return label

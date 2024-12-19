@@ -40,7 +40,7 @@ uvicorn barbershop.app:app --reload
 ```
 
 The server will be available at http://127.0.0.1:8000.
- 
+
 Running the Tkinter Application
 To start the Tkinter application, run:
 
@@ -56,6 +56,6 @@ To run the tests, use:
     - <input disabled="" type="checkbox"> Add filters with correct logic<br>
     - <input disabled="" type="checkbox"> Add IA for improvements<br>
     - <input disabled="" type="checkbox"> Add graphics using matplotlib (in a new tab)<br>
-    
+
 # License
 This project is licensed under the MIT License.
