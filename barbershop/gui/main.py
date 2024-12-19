@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
-
-import customtkinter as ctk  # type: ignore
 from tkcalendar import Calendar  # type: ignore
 
 from barbershop.gui.haircut_registration import register_new_haircut

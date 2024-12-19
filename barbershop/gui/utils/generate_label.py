@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-import customtkinter as ctk  # type: ignore
-
 
 def generate_label(
     root: tk.Tk | ttk.Frame, text: str, isBold: bool = False
