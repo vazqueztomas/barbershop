@@ -12,11 +12,6 @@ dependencies = [
     "tkcalendar>=1.6.1",
 ]
 
-[tool.uv]
-paths = ["barbershop", "tests"]
-
-
-
 [tool.ruff]
 fix = true
 preview = true
