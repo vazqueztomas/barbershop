@@ -1,14 +1,14 @@
 import csv
 from tkinter import messagebox, ttk
 
-from barbershop.gui.update_information_in_display import update_info_in_display
-
 import customtkinter as ctk  # type: ignore
+
+from barbershop.gui.update_information_in_display import update_info_in_display
 
 
 def read_register(file_path: str) -> list[list[str]]:
     try:
-        with open(file_path, "r") as archive:
+        with open(file_path) as archive:
             reader = csv.reader(archive)
             data = [row for row in reader]
             return data
@@ -29,7 +29,7 @@ def remove_cuts_from_table(
 
     selected_row = table.item(selected_item[0])["values"]
 
-    with open("register_haircuts.csv", "r") as archive:
+    with open("register_haircuts.csv") as archive:
         rows = list(csv.reader(archive))
 
     with open("register_haircuts.csv", "w", newline="") as archive:

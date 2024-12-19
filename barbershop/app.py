@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from .routes import haircuts_router
 
 app = FastAPI()

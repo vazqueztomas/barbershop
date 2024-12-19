@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from barbershop.app import app
 from barbershop.models import Haircut
 

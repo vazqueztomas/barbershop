@@ -1,4 +1,5 @@
 import csv
+
 import customtkinter as ctk  # type: ignore
 
 
@@ -6,7 +7,7 @@ def update_info_in_display(
     label_income: ctk.CTkLabel, label_haircuts: ctk.CTkLabel
 ) -> None:
     try:
-        with open("register_haircuts.csv", "r") as archive:
+        with open("register_haircuts.csv") as archive:
             reader = csv.reader(archive)
 
             income = 0

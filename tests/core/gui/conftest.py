@@ -1,8 +1,9 @@
-from typing import Generator, Literal, Any
-
-import pytest
 import csv
 import os
+from collections.abc import Generator
+from typing import Any, Literal
+
+import pytest
 
 
 @pytest.fixture
@@ -25,7 +26,7 @@ dummy_data: list[list[Any]] = [
 
 
 @pytest.fixture
-def create_csv() -> Generator[Literal["test_haircuts.csv"], None, None]:
+def create_csv() -> Generator[Literal["test_haircuts.csv"]]:
     """Fixture para crear un archivo CSV con datos de prueba."""
     file_path = "test_haircuts.csv"
 

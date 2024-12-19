@@ -1,11 +1,12 @@
 import csv
-from tkinter import messagebox, ttk
 import tkinter as tk
 from datetime import datetime
-from tkcalendar import Calendar  # type: ignore
-from barbershop.gui.update_information_in_display import update_info_in_display
+from tkinter import messagebox, ttk
 
 import customtkinter as ctk  # type: ignore
+from tkcalendar import Calendar  # type: ignore
+
+from barbershop.gui.update_information_in_display import update_info_in_display
 
 
 def get_selected_option(
@@ -15,9 +16,9 @@ def get_selected_option(
 ):
     if checkbox_pelo.instate(["selected"]):  # type: ignore
         return "Pelo"
-    elif checkbox_pelo_y_barba.instate(["selected"]):  # type: ignore
+    if checkbox_pelo_y_barba.instate(["selected"]):  # type: ignore
         return "Pelo y Barba"
-    elif checkbox_barba.instate(["selected"]):  # type:ignore
+    if checkbox_barba.instate(["selected"]):  # type:ignore
         return "Barba"
     return "No aclarado"
 

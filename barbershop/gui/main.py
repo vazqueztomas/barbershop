@@ -1,15 +1,15 @@
 import tkinter as tk
-from tkinter import messagebox
-from barbershop.gui.utils.update_tree_view import update_tree_view
-from barbershop.gui.utils.generate_label import generate_label
-from barbershop.gui.update_information_in_display import update_info_in_display
+from tkinter import messagebox, ttk
+
+import customtkinter as ctk  # type: ignore
+from tkcalendar import Calendar  # type: ignore
+
 from barbershop.gui.haircut_registration import register_new_haircut
 from barbershop.gui.read_register import remove_cuts_from_table
 from barbershop.gui.show_historico import show_historico
-from tkcalendar import Calendar  # type: ignore
-from barbershop.gui.constants import FILE_PATH
-import customtkinter as ctk  # type: ignore
-from tkinter import ttk
+from barbershop.gui.update_information_in_display import update_info_in_display
+from barbershop.gui.utils.generate_label import generate_label
+from barbershop.gui.utils.update_tree_view import update_tree_view
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
@@ -97,7 +97,7 @@ button_mostrar_historico = ctk.CTkButton(
 button_mostrar_historico.grid(row=6, column=1, padx=10, pady=10, sticky="ew")  # type: ignore
 
 
-with open("register_haircuts.csv", "r") as archive:
+with open("register_haircuts.csv") as archive:
     for row in archive:
         row = row.strip().split(",")
         tree.insert("", tk.END, values=row)

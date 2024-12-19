@@ -1,4 +1,5 @@
 import pytest
+
 from barbershop.models import Haircut
 
 
