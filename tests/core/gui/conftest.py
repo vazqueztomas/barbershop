@@ -2,13 +2,14 @@ import csv
 import os
 from collections.abc import Generator
 from typing import Any, Literal
+from barbershop.gui.constants import FILE_PATH
 
 import pytest
 
 
 @pytest.fixture
 def file_path() -> str:
-    return "register_haircuts.csv"
+    return FILE_PATH
 
 
 dummy_data: list[list[Any]] = [

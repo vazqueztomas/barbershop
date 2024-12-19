@@ -1,19 +1,17 @@
 import csv
+from tkinter import ttk
+from pathlib import Path
+from barbershop.gui.constants import FILE_PATH
 
-import customtkinter as ctk  # type: ignore
 
-
-def update_info_in_display(
-    label_income: ctk.CTkLabel, label_haircuts: ctk.CTkLabel
-) -> None:
+def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -> None:
     try:
-        with open("register_haircuts.csv") as archive:
+        with Path(FILE_PATH).open() as archive:
             reader = csv.reader(archive)
 
             income = 0
             total_haircuts = 0
             for fila in reader:
-                print(fila)
                 income += float(fila[3])
                 total_haircuts += 1
 

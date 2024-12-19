@@ -1,9 +1,8 @@
 import csv
 from tkinter import messagebox, ttk
 
-import customtkinter as ctk  # type: ignore
-
 from barbershop.gui.update_information_in_display import update_info_in_display
+from barbershop.gui.constants import FILE_PATH
 
 
 def read_register(file_path: str) -> list[list[str]]:
@@ -18,7 +17,7 @@ def read_register(file_path: str) -> list[list[str]]:
 
 
 def remove_cuts_from_table(
-    table: ttk.Treeview, label_income: ctk.CTkLabel, label_total_haircuts: ctk.CTkLabel
+    table: ttk.Treeview, label_income: ttk.Label, label_total_haircuts: ttk.Label
 ):
     selected_item = table.selection()
     if not selected_item:
@@ -29,10 +28,10 @@ def remove_cuts_from_table(
 
     selected_row = table.item(selected_item[0])["values"]
 
-    with open("register_haircuts.csv") as archive:
+    with open(FILE_PATH) as archive:
         rows = list(csv.reader(archive))
 
-    with open("register_haircuts.csv", "w", newline="") as archive:
+    with open(FILE_PATH, "w", newline="") as archive:
         writer = csv.writer(archive)
         for row in rows:
             if row != selected_row:

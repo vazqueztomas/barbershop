@@ -1,13 +1,14 @@
 import csv
 import tkinter as tk
 from datetime import datetime
+from pathlib import Path
 from pydantic import ValidationError
 from tkcalendar import Calendar  # type: ignore
+from tkinter import ttk, messagebox
 
 from barbershop.gui.update_information_in_display import update_info_in_display
-from barbershop.models import Haircut
-
-import customtkinter as ctk  # type: ignore
+from barbershop.gui.constants import FILE_PATH
+from barbershop.models.haircut import Haircut
 
 
 def get_selected_option(
@@ -25,11 +26,11 @@ def get_selected_option(
 
 
 def register_new_haircut(
-    label_income: ctk.CTkLabel,
-    label_total_haircuts: ctk.CTkLabel,
-    entry_cliente: ctk.CTkEntry,
-    entry_corte: ctk.CTkEntry,
-    entry_precio: ctk.CTkEntry,
+    label_income: ttk.Label,
+    label_total_haircuts: ttk.Label,
+    entry_cliente: ttk.Entry,
+    entry_corte: ttk.Entry,
+    entry_precio: ttk.Entry,
     calendar: Calendar,
     checkbox_pelo: ttk.Radiobutton,
     checkbox_pelo_y_barba: ttk.Radiobutton,
@@ -55,15 +56,13 @@ def register_new_haircut(
             selected_option=selected_option,
         )
     except ValidationError as e:
-        messagebox.showerror("Error", str(e))
-        print(e)
+        messagebox.showerror("Error", str(e))  # type: ignore
         return
 
-    with open("register_haircuts.csv", "a", newline="") as archive:
+    with open(FILE_PATH, "a", newline="") as archive:
         writer = csv.writer(archive)
 
         writer.writerow(haircut_data.model_dump().values())
-        print(haircut_data.model_dump(exclude={"id"}).values())
 
     entry_cliente.delete(0, tk.END)  # type: ignore
     entry_corte.delete(0, tk.END)  # type: ignore

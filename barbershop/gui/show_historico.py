@@ -1,14 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
+from barbershop.gui.constants import FILE_PATH
 
 
-def show_historico(root: tk.Tk, tree: ttk.Treeview):
+def show_historico(tree: ttk.Treeview):
     window = tk.Tk()
     window.title("Historico de cortes")
 
     def filter_by_date_part(date_part_index: int, value: str):
         tree.delete(*tree.get_children())
-        with open("register_haircuts.csv") as archive:
+        with open(FILE_PATH) as archive:
             for row in archive:
                 row = row.strip().split(",")
                 if row[3].split("-")[date_part_index] == value:
@@ -26,7 +27,7 @@ def show_historico(root: tk.Tk, tree: ttk.Treeview):
     def filter_by_type():
         selected_option = combobox_type.get()
         tree.delete(*tree.get_children())
-        with open("register_haircuts.csv") as archive:
+        with open(FILE_PATH) as archive:
             for row in archive:
                 row = row.strip().split(",")
                 if row[4] == selected_option:

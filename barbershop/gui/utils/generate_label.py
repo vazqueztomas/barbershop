@@ -1,15 +1,16 @@
 import tkinter as tk
+from tkinter import ttk
 
 import customtkinter as ctk  # type: ignore
 
 
 def generate_label(
-    place: tk.Misc, text: str, row: int, column: int, isBold: bool = False
-) -> ctk.CTkLabel:
+    root: tk.Tk | ttk.Frame, text: str, isBold: bool = False
+) -> ttk.Label:
     if isBold:
-        label = ctk.CTkLabel(place, text=text, font=("Arial", 16, "bold"))
+        label = ttk.Label(root, text=text, font=("Arial", 16, "bold"))
     else:
-        label = ctk.CTkLabel(place, text=text)
+        label = ttk.Label(root, text=text)
 
-    label.grid(row=row, column=column, padx=10, pady=10)  # type: ignore
+    label.pack(padx=10, pady=10)  # type: ignore
     return label

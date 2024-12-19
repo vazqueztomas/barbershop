@@ -10,66 +10,81 @@ from barbershop.gui.show_historico import show_historico
 from barbershop.gui.update_information_in_display import update_info_in_display
 from barbershop.gui.utils.generate_label import generate_label
 from barbershop.gui.utils.update_tree_view import update_tree_view
+from barbershop.gui.constants import FILE_PATH
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
-root = ctk.CTk()
-root.title("Barbershop")
 
+root = tk.Tk()
+root.title("Barbershop")
 tree = ttk.Treeview(root, columns=columns, show="headings")
 
 for column in columns:
     tree.heading(column, text=column)
 
-tree.grid(row=8, column=0, columnspan=4, padx=10, pady=10)
+tabControl = ttk.Notebook(root)
+tabControl.pack(fill="both", expand=True, padx=10, pady=10)
+
+tab_register_haircut = ttk.Frame(tabControl)
+tab_statistics = ttk.Frame(tabControl)
+tabControl.add(tab_register_haircut, text="Registro")
+tabControl.add(tab_statistics, text="Graficos")
+
+label_cliente = generate_label(tab_register_haircut, text="Cliente:")
+label_cliente.pack(padx=10, pady=5, anchor="w")
+entry_cliente = ttk.Entry(tab_register_haircut)
+entry_cliente.pack(padx=10, pady=5, fill="x")
 
 
-label_cliente = generate_label(root, text="Cliente:", row=0, column=0)
-label_fecha = generate_label(root, text="Fecha:", row=4, column=0)
+label_corte = generate_label(tab_register_haircut, text="Tipo de Corte:")
+label_corte.pack(padx=10, pady=5, anchor="w")
+entry_corte = ttk.Entry(tab_register_haircut)
+entry_corte.pack(padx=10, pady=5, fill="x")
 
-label_income = generate_label(
-    root, text="Total ganado: $0", row=7, column=0, isBold=True
+label_precio = generate_label(tab_register_haircut, text="Precio:")
+label_precio.pack(padx=10, pady=5, anchor="w")
+entry_precio = ttk.Entry(tab_register_haircut)
+entry_precio.pack(padx=10, pady=5, fill="x")
+
+label_fecha = generate_label(tab_register_haircut, text="Fecha:")
+label_fecha.pack(padx=10, pady=5, anchor="w")
+entry_fecha = Calendar(
+    tab_register_haircut, selectmode="day", date_pattern="mm/dd/yyyy"
 )
-label_total_haircuts = generate_label(
-    root, text="Cortes realizados: 0", row=7, column=2, isBold=True
-)
+entry_fecha.pack(padx=10, pady=5, fill="x")
 
-label_corte = generate_label(root, text="Tipo de Corte:", row=1, column=0)
-label_precio = generate_label(root, text="Precio:", row=2, column=0)
-
-entry_corte = ctk.CTkEntry(root)
-entry_corte.grid(row=1, column=1, pady=10)  # type: ignore
-
-entry_cliente = ctk.CTkEntry(root)
-entry_cliente.grid(row=0, column=1, padx=10, pady=10)  # type: ignore
-
-entry_precio = ctk.CTkEntry(root)
-entry_precio.grid(row=2, column=1)  # type: ignore
-
-calendar = Calendar(root, selectmode="day", date_pattern="mm/dd/yyyy")
-calendar.grid(row=4, column=1, padx=10, pady=10)  # type: ignore
+frame_radio_buttons = ttk.Frame(tab_register_haircut)
+frame_radio_buttons.pack(anchor="w")
 
 selected_option = tk.IntVar()
-rb_pelo = ttk.Radiobutton(root, text="Pelo", variable=selected_option, value=1)
-rb_pelo.grid(row=3, column=0, padx=10, pady=10)  # type: ignore
+rb_pelo = ttk.Radiobutton(
+    frame_radio_buttons, text="Pelo", variable=selected_option, value=1
+)
+rb_pelo.pack(padx=10, pady=5, anchor="w", side="left")
 
 rb_pelo_y_barba = ttk.Radiobutton(
-    root, text="Pelo y Barba", variable=selected_option, value=2
+    frame_radio_buttons, text="Pelo y Barba", variable=selected_option, value=2
 )
-rb_pelo_y_barba.grid(row=3, column=1, padx=10, pady=10)  # type: ignore
+rb_pelo_y_barba.pack(padx=10, pady=5, anchor="w", side="left")
 
-rb_barba = ttk.Radiobutton(root, text="Barba", variable=selected_option, value=3)
-rb_barba.grid(row=3, column=2, padx=10, pady=10)  # type: ignore
+rb_barba = ttk.Radiobutton(
+    frame_radio_buttons, text="Barba", variable=selected_option, value=3
+)
+rb_barba.pack(padx=10, pady=5, anchor="w", side="left")
 
-button_show_graphics = ctk.CTkButton(
-    root,
+button_show_graphics = ttk.Button(
+    tab_register_haircut,
     text="Mostrar Graficos",
-    command=lambda: messagebox.showinfo("Info", "No implementado"),
+    command=lambda: messagebox.showinfo("Info", "Coming soon"),  # type: ignore
 )
-button_show_graphics.grid(row=0, column=2, padx=10, pady=10)  # type: ignore
+button_show_graphics.pack(padx=10, pady=10, fill="x")
 
-button_registrar = ctk.CTkButton(
-    root,
+# Frame to hold the buttons side by side
+button_frame = ttk.Frame(tab_register_haircut)
+button_frame.pack(fill="x")
+
+button_registrar = ttk.Button(
+    button_frame,
     text="Registrar nuevo corte",
     command=lambda: [
         register_new_haircut(
@@ -78,7 +93,7 @@ button_registrar = ctk.CTkButton(
             entry_cliente,
             entry_corte,
             entry_precio,
-            calendar=calendar,
+            calendar=entry_fecha,
             checkbox_pelo=rb_pelo,
             checkbox_pelo_y_barba=rb_pelo_y_barba,
             checkbox_barba=rb_barba,
@@ -86,29 +101,42 @@ button_registrar = ctk.CTkButton(
         update_tree_view(tree),
     ],
 )
-button_registrar.grid(row=5, column=0, columnspan=3, pady=20, padx=10, sticky="ew")  # type: ignore
+button_registrar.pack(pady=20, padx=10, fill="x", side="left")
 
-button_mostrar_historico = ctk.CTkButton(
-    root,
-    text="Historico",
-    command=lambda: show_historico(root, tree),
-    font=("Arial", 16),
+
+frame_bold_labels = ttk.Frame(tab_register_haircut)
+frame_bold_labels.pack(anchor="w")
+
+label_income = generate_label(frame_bold_labels, text="Total ganado: $0", isBold=True)
+label_income.pack(padx=10, pady=5, anchor="w", side="left")
+label_total_haircuts = generate_label(
+    frame_bold_labels, text="Cortes realizados: 0", isBold=True
 )
-button_mostrar_historico.grid(row=6, column=1, padx=10, pady=10, sticky="ew")  # type: ignore
+label_total_haircuts.pack(padx=10, pady=5, anchor="w", side="right")
 
 
-with open("register_haircuts.csv") as archive:
+button_delete = ttk.Button(
+    button_frame,
+    text="Eliminar Corte",
+    command=lambda: remove_cuts_from_table(tree, label_income, label_total_haircuts),
+)
+button_delete.pack(padx=10, pady=10, fill="x", side="right")
+
+button_mostrar_historico = ttk.Button(
+    tab_register_haircut,
+    text="Historico",
+    command=lambda: show_historico(tree),
+)
+button_mostrar_historico.pack(padx=10, pady=10, fill="x")
+
+
+tree.pack(padx=10, pady=10, fill="both", expand=True)
+
+with open(FILE_PATH) as archive:
     for row in archive:
         row = row.strip().split(",")
         tree.insert("", tk.END, values=row)
 
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
-
-button_delete = ttk.Button(
-    root,
-    text="Eliminar Corte",
-    command=lambda: remove_cuts_from_table(tree, label_income, label_total_haircuts),
-)
-button_delete.grid(row=9, column=0, columnspan=4, padx=10, pady=10)  # type: ignore
 
 root.mainloop()  # type: ignore
