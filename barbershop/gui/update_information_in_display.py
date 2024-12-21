@@ -15,7 +15,7 @@ def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -
             income = 0
             total_haircuts = 0
             for haircut in haircut_list:
-                income += float(haircut["price"])
+                income += float(haircut["prize"])
                 total_haircuts += 1
 
             label_income.configure(text=f"Total ganado: ${income}")  # type: ignore
