@@ -30,23 +30,23 @@ tab_statistics = ttk.Frame(tabControl)
 tabControl.add(tab_register_haircut, text="Registro")
 tabControl.add(tab_statistics, text="Graficos")
 
-label_cliente = generate_label(tab_register_haircut, text="Cliente:")
+label_cliente = generate_label(tab_register_haircut, text="Cliente:", isBold=True)
 label_cliente.pack(padx=10, pady=5, anchor="w")
 entry_cliente = ttk.Entry(tab_register_haircut)
 entry_cliente.pack(padx=10, pady=5, fill="x")
 
 
-label_corte = generate_label(tab_register_haircut, text="Tipo de Corte:")
+label_corte = generate_label(tab_register_haircut, text="Tipo de Corte:", isBold=True)
 label_corte.pack(padx=10, pady=5, anchor="w")
 entry_corte = ttk.Entry(tab_register_haircut)
 entry_corte.pack(padx=10, pady=5, fill="x")
 
-label_precio = generate_label(tab_register_haircut, text="Precio:")
+label_precio = generate_label(tab_register_haircut, text="Precio:", isBold=True)
 label_precio.pack(padx=10, pady=5, anchor="w")
 entry_precio = ttk.Entry(tab_register_haircut)
 entry_precio.pack(padx=10, pady=5, fill="x")
 
-label_fecha = generate_label(tab_register_haircut, text="Fecha:")
+label_fecha = generate_label(tab_register_haircut, text="Fecha:", isBold=True)
 label_fecha.pack(padx=10, pady=5, anchor="w")
 entry_fecha = Calendar(
     tab_register_haircut, selectmode="day", date_pattern="mm/dd/yyyy"

@@ -24,10 +24,7 @@ async def get_haircut(haircut_id: str) -> Haircut | None:
 @router.post("/", response_model=Haircut, status_code=201)
 async def create_haircut(haircut: Haircut) -> Haircut:
     new_haircut = await haircuts_collection.insert_one(haircut.model_dump())
-    created_haircut = await haircuts_collection.find_one({
-        "_id": new_haircut.inserted_id
-    })
-    return created_haircut
+    return await haircuts_collection.find_one({"_id": new_haircut.inserted_id})
 
 
 @router.delete("/{haircut_id}", response_model=Haircut)
