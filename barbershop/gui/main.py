@@ -117,7 +117,6 @@ label_total_haircuts.pack(padx=10, pady=5, anchor="w", side="right")
 def remove_haircut_from_database() -> None:
     # get haircut id from the selected row
     haircut_id_from_row = tree.item(tree.selection()[0])["values"]
-    print(haircut_id_from_row)
     try:
         requests.delete(f"http://127.0.0.1:8000/haircuts/{haircut_id_from_row[0]}")
     except requests.exceptions.RequestException:
