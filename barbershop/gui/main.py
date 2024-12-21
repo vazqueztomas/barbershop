@@ -30,23 +30,23 @@ tab_statistics = ttk.Frame(tabControl)
 tabControl.add(tab_register_haircut, text="Registro")
 tabControl.add(tab_statistics, text="Graficos")
 
-label_cliente = generate_label(tab_register_haircut, text="Cliente:", isBold=True)
+label_cliente = generate_label(tab_register_haircut, text="Cliente:", isBold=False)
 label_cliente.pack(padx=10, pady=5, anchor="w")
 entry_cliente = ttk.Entry(tab_register_haircut)
 entry_cliente.pack(padx=10, pady=5, fill="x")
 
 
-label_corte = generate_label(tab_register_haircut, text="Tipo de Corte:", isBold=True)
+label_corte = generate_label(tab_register_haircut, text="Tipo de Corte:", isBold=False)
 label_corte.pack(padx=10, pady=5, anchor="w")
 entry_corte = ttk.Entry(tab_register_haircut)
 entry_corte.pack(padx=10, pady=5, fill="x")
 
-label_precio = generate_label(tab_register_haircut, text="Precio:", isBold=True)
+label_precio = generate_label(tab_register_haircut, text="Precio:", isBold=False)
 label_precio.pack(padx=10, pady=5, anchor="w")
 entry_precio = ttk.Entry(tab_register_haircut)
 entry_precio.pack(padx=10, pady=5, fill="x")
 
-label_fecha = generate_label(tab_register_haircut, text="Fecha:", isBold=True)
+label_fecha = generate_label(tab_register_haircut, text="Fecha:", isBold=False)
 label_fecha.pack(padx=10, pady=5, anchor="w")
 entry_fecha = Calendar(
     tab_register_haircut, selectmode="day", date_pattern="mm/dd/yyyy"
@@ -97,9 +97,29 @@ button_registrar = ttk.Button(
             checkbox_pelo=rb_pelo,
             checkbox_pelo_y_barba=rb_pelo_y_barba,
             checkbox_barba=rb_barba,
-        )
+        ),
+        update_treeview(),
     ],
 )
+
+
+def update_treeview():
+    tree.delete(*tree.get_children())
+    for haircut in get_haircuts_list():
+        tree.insert(
+            "",
+            tk.END,
+            values=(
+                haircut["id"],
+                haircut["client"],
+                haircut["haircut"],
+                haircut["prize"],
+                haircut["date"],
+                haircut["selected_option"],
+            ),
+        )
+
+
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
 
 
@@ -131,7 +151,7 @@ def remove_haircut_from_database() -> None:
 button_delete = ttk.Button(
     button_frame,
     text="Eliminar Corte",
-    command=lambda: remove_haircut_from_database(),
+    command=lambda: [remove_haircut_from_database(), update_treeview()],
 )
 button_delete.pack(padx=10, pady=10, fill="x", side="right")
 

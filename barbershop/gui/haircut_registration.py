@@ -26,7 +26,7 @@ def get_selected_option(
     return "No aclarado"
 
 
-def register_new_haircut(
+def register_new_haircut(  # pylint: disable=too-many-arguments, too-many-locals
     label_income: ttk.Label,
     label_total_haircuts: ttk.Label,
     entry_cliente: ttk.Entry,

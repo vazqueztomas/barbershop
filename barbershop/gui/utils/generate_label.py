@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def generate_label(root: tk.Tk | ttk.Frame, text: str, isBold: bool) -> ttk.Label:
+def generate_label(root: tk.Tk | ttk.Frame, text: str, isBold: bool) -> ttk.Label:  # noqa
     if not isBold:
         label = ttk.Label(root, text=text)
 
