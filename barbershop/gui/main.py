@@ -3,19 +3,20 @@ from tkinter import messagebox, ttk
 from tkcalendar import Calendar  # type: ignore
 
 from barbershop.gui.haircut_registration import register_new_haircut
-from barbershop.gui.read_register import remove_cuts_from_table
 from barbershop.gui.show_historico import show_historico
-from barbershop.gui.update_information_in_display import update_info_in_display
+from barbershop.gui.update_information_in_display import (
+    get_haircuts_list,
+    update_info_in_display,
+)
 from barbershop.gui.utils.generate_label import generate_label
-from barbershop.gui.utils.update_tree_view import update_tree_view
-from barbershop.gui.constants import FILE_PATH
+import requests
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
 
 root = tk.Tk()
 root.title("Barbershop")
-tree = ttk.Treeview(root, columns=columns, show="headings")
+tree = ttk.Treeview(columns=columns, show="headings")
 
 for column in columns:
     tree.heading(column, text=column)
@@ -95,8 +96,7 @@ button_registrar = ttk.Button(
             checkbox_pelo=rb_pelo,
             checkbox_pelo_y_barba=rb_pelo_y_barba,
             checkbox_barba=rb_barba,
-        ),
-        update_tree_view(tree),
+        )
     ],
 )
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
@@ -113,12 +113,28 @@ label_total_haircuts = generate_label(
 label_total_haircuts.pack(padx=10, pady=5, anchor="w", side="right")
 
 
+def remove_haircut_from_database() -> None:
+    # get haircut id from the selected row
+    haircut_id_from_row = tree.item(tree.selection()[0])["values"]
+    print(haircut_id_from_row)
+    try:
+        requests.delete(f"http://127.0.0.1:8000/haircuts/{haircut_id_from_row[0]}")
+    except requests.exceptions.RequestException:
+        messagebox.showerror("Error", "No se pudo eliminar el corte.")  # type: ignore
+        return
+
+    update_info_in_display(
+        label_income=label_income, label_haircuts=label_total_haircuts
+    )
+
+
 button_delete = ttk.Button(
     button_frame,
     text="Eliminar Corte",
-    command=lambda: remove_cuts_from_table(tree, label_income, label_total_haircuts),
+    command=lambda: remove_haircut_from_database(),
 )
 button_delete.pack(padx=10, pady=10, fill="x", side="right")
+
 
 button_mostrar_historico = ttk.Button(
     tab_register_haircut,
@@ -130,10 +146,22 @@ button_mostrar_historico.pack(padx=10, pady=10, fill="x")
 
 tree.pack(padx=10, pady=10, fill="both", expand=True)
 
-with open(FILE_PATH) as archive:
-    for row in archive:
-        row = row.strip().split(",")
-        tree.insert("", tk.END, values=row)
+
+haircuts_list = get_haircuts_list()
+for haircut in haircuts_list:
+    tree.insert(
+        "",
+        tk.END,
+        values=(
+            haircut["id"],
+            haircut["client"],
+            haircut["haircut"],
+            haircut["prize"],
+            haircut["date"],
+            haircut["selected_option"],
+        ),
+    )
+
 
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
 

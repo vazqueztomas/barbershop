@@ -1,7 +1,6 @@
 import csv
 import tkinter as tk
 from datetime import datetime
-from pathlib import Path
 from pydantic import ValidationError
 from tkcalendar import Calendar  # type: ignore
 from tkinter import ttk, messagebox
@@ -9,6 +8,7 @@ from tkinter import ttk, messagebox
 from barbershop.gui.update_information_in_display import update_info_in_display
 from barbershop.gui.constants import FILE_PATH
 from barbershop.models.haircut import Haircut
+import requests
 
 
 def get_selected_option(
@@ -61,8 +61,14 @@ def register_new_haircut(
 
     with open(FILE_PATH, "a", newline="") as archive:
         writer = csv.writer(archive)
-
         writer.writerow(haircut_data.model_dump().values())
+
+    # create a haircut in the database
+    url = "http://127.0.0.1:8000/haircuts"
+    response = requests.post(url, json=haircut_data.model_dump())
+    if response.status_code != 201:
+        messagebox.showerror("Error", "No se pudo registrar el corte")  # type: ignore
+        return
 
     entry_cliente.delete(0, tk.END)  # type: ignore
     entry_corte.delete(0, tk.END)  # type: ignore
