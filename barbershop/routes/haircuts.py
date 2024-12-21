@@ -32,8 +32,8 @@ async def create_haircut(haircut: Haircut) -> Haircut:
 
 @router.delete("/{haircut_id}", response_model=Haircut)
 async def delete_haircut(haircut_id: str) -> Haircut | None:
-    haircut: Haircut = await haircuts_collection.find_one({"_id": haircut_id})
+    haircut: Haircut = await haircuts_collection.find_one({"id": haircut_id})
     if haircut:
-        await haircuts_collection.delete_one({"_id": haircut_id})
+        await haircuts_collection.delete_one({"id": haircut_id})
         return haircut
     return None
