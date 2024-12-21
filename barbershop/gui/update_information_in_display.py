@@ -1,18 +1,21 @@
-import csv
 from tkinter import ttk
-from pathlib import Path
-from barbershop.gui.constants import FILE_PATH
+import requests
+
+from barbershop.models.haircut import Haircut
+
+
+def get_haircuts_list() -> list[dict[str, Haircut]]:
+    return requests.get("http://localhost:8000/haircuts").json()
 
 
 def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -> None:
     try:
-        with Path(FILE_PATH).open() as archive:
-            reader = csv.reader(archive)
-
+        haircut_list = get_haircuts_list()
+        if haircut_list:
             income = 0
             total_haircuts = 0
-            for fila in reader:
-                income += float(fila[3])
+            for haircut in haircut_list:
+                income += float(haircut["price"])
                 total_haircuts += 1
 
             label_income.configure(text=f"Total ganado: ${income}")  # type: ignore
