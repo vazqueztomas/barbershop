@@ -2,12 +2,13 @@ import csv
 import os
 from collections.abc import Generator
 from typing import Any, Literal
-from barbershop.gui.constants import FILE_PATH
 
 import pytest
 
+from barbershop.gui.constants import FILE_PATH
 
-@pytest.fixture
+
+@pytest.fixture()
 def file_path() -> str:
     return FILE_PATH
 
@@ -26,7 +27,7 @@ dummy_data: list[list[Any]] = [
 ]
 
 
-@pytest.fixture
+@pytest.fixture()
 def create_csv() -> Generator[Literal["test_haircuts.csv"]]:
     """Fixture para crear un archivo CSV con datos de prueba."""
     file_path = "test_haircuts.csv"

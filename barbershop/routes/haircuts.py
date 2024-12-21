@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from barbershop.models import Haircut
 from barbershop.database.database import haircuts_collection
+from barbershop.models import Haircut
 
 router = APIRouter(prefix="/haircuts")
 

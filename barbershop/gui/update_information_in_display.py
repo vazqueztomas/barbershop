@@ -1,4 +1,5 @@
 from tkinter import ttk
+
 import requests
 
 from barbershop.models.haircut import Haircut

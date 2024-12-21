@@ -1,10 +1,8 @@
-import csv
 from tkinter import messagebox, ttk
 
-from barbershop.gui.update_information_in_display import update_info_in_display
-from barbershop.gui.constants import FILE_PATH
 import requests
 
+from barbershop.gui.update_information_in_display import update_info_in_display
 from barbershop.models.haircut import Haircut
 
 
@@ -36,7 +34,7 @@ def remove_cuts_from_table(
 
     for i, item in enumerate(table.get_children(), start=1):
         table.item(item, values=(i, *table.item(item)["values"][1:]))
-        
+
     update_info_in_display(
         label_income=label_income, label_haircuts=label_total_haircuts
     )

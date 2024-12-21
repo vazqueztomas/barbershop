@@ -1,14 +1,15 @@
 import csv
 import tkinter as tk
 from datetime import datetime
+from tkinter import messagebox, ttk
+
+import requests
 from pydantic import ValidationError
 from tkcalendar import Calendar  # type: ignore
-from tkinter import ttk, messagebox
 
-from barbershop.gui.update_information_in_display import update_info_in_display
 from barbershop.gui.constants import FILE_PATH
+from barbershop.gui.update_information_in_display import update_info_in_display
 from barbershop.models.haircut import Haircut
-import requests
 
 
 def get_selected_option(

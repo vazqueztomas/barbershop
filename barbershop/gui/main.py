@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
+
+import requests
 from tkcalendar import Calendar  # type: ignore
 
 from barbershop.gui.haircut_registration import register_new_haircut
@@ -9,7 +11,6 @@ from barbershop.gui.update_information_in_display import (
     update_info_in_display,
 )
 from barbershop.gui.utils.generate_label import generate_label
-import requests
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
