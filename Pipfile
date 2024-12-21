@@ -13,8 +13,13 @@ pytest ="8.3.3"
 requests ="2.32.3"
 tkcalendar ="1.6.1"
 uvicorn ="0.34.0"
+pre-commit = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.13"
+
+[scripts]
+start = "python -m barbershop.gui.main"
+format = "pre-commit run --all-files"

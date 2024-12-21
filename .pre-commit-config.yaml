@@ -1,9 +1,4 @@
 repos:
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.5.10
-    hooks:
-      - id: uv
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.0
     hooks:
