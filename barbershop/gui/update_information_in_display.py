@@ -3,10 +3,11 @@ from tkinter import ttk
 import requests
 
 from barbershop.models.haircut import Haircut
+from barbershop.gui.constants import BASE_URL
 
 
 def get_haircuts_list() -> list[dict[str, Haircut]]:
-    return requests.get("http://localhost:8000/haircuts").json()
+    return requests.get(f"{BASE_URL}/haircuts").json()
 
 
 def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -> None:

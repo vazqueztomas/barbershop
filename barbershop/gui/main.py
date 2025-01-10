@@ -105,19 +105,23 @@ button_registrar = ttk.Button(
 
 def update_treeview():
     tree.delete(*tree.get_children())
-    for haircut in get_haircuts_list():
-        tree.insert(
-            "",
-            tk.END,
-            values=(
-                haircut["id"],
-                haircut["client"],
-                haircut["haircut"],
-                haircut["prize"],
-                haircut["date"],
-                haircut["selected_option"],
-            ),
-        )
+    try:
+        haircuts_list = get_haircuts_list()
+        for haircut in haircuts_list:
+            tree.insert(
+                "",
+                tk.END,
+                values=(
+                    haircut["id"],
+                    haircut["client"],
+                    haircut["haircut"],
+                    haircut["prize"],
+                    haircut["date"],
+                    haircut["selected_option"],
+                ),
+            )
+    except requests.exceptions.RequestException:
+        messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
 
 
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
@@ -167,20 +171,28 @@ button_mostrar_historico.pack(padx=10, pady=10, fill="x")
 tree.pack(padx=10, pady=10, fill="both", expand=True)
 
 
-haircuts_list = get_haircuts_list()
-for haircut in haircuts_list:
-    tree.insert(
-        "",
-        tk.END,
-        values=(
-            haircut["id"],
-            haircut["client"],
-            haircut["haircut"],
-            haircut["prize"],
-            haircut["date"],
-            haircut["selected_option"],
-        ),
-    )
+def populate_haircuts_tree(tree):
+    try:
+        haircuts_list = get_haircuts_list()
+        for haircut in haircuts_list:
+            tree.insert(
+                "",
+                tk.END,
+                values=(
+                    haircut["id"],
+                    haircut["client"],
+                    haircut["haircut"],
+                    haircut["prize"],
+                    haircut["date"],
+                    haircut["selected_option"],
+                ),
+            )
+    except requests.exceptions.RequestException:
+        messagebox.showerror("Error", "No se pudo obtener la    lista de cortes.")  # type: ignore
+        tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
+
+
+populate_haircuts_tree(tree)
 
 
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
