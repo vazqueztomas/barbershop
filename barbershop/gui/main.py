@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 import requests
 from tkcalendar import Calendar  # type: ignore
 
+from barbershop.gui.constants import BASE_URL
 from barbershop.gui.haircut_registration import register_new_haircut
 from barbershop.gui.show_historico import show_historico
 from barbershop.gui.update_information_in_display import (
@@ -122,7 +123,8 @@ def update_treeview():
             )
     except requests.exceptions.RequestException:
         messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
-
+        tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
+        
 
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
 
@@ -142,7 +144,7 @@ def remove_haircut_from_database() -> None:
     # get haircut id from the selected row
     haircut_id_from_row = tree.item(tree.selection()[0])["values"]
     try:
-        requests.delete(f"http://127.0.0.1:8000/haircuts/{haircut_id_from_row[0]}")
+        requests.delete(f"{BASE_URL}/haircuts/{haircut_id_from_row[0]}")
     except requests.exceptions.RequestException:
         messagebox.showerror("Error", "No se pudo eliminar el corte.")  # type: ignore
         return
@@ -188,10 +190,10 @@ def populate_haircuts_tree(tree):
                 ),
             )
     except requests.exceptions.RequestException:
-        messagebox.showerror("Error", "No se pudo obtener la    lista de cortes.")  # type: ignore
+        messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
         tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
-
-
+        
+        
 populate_haircuts_tree(tree)
 
 

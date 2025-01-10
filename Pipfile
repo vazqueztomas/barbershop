@@ -14,12 +14,14 @@ requests ="2.32.3"
 tkcalendar ="1.6.1"
 uvicorn ="0.34.0"
 pre-commit = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "*"
 
 [scripts]
 start = "python -m barbershop.gui.main"
 format = "pre-commit run --all-files"
+start-server = "uvicorn barbershop.app:app --reload"

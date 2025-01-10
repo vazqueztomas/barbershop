@@ -7,7 +7,12 @@ from barbershop.gui.constants import BASE_URL
 
 
 def get_haircuts_list() -> list[dict[str, Haircut]]:
-    return requests.get(f"{BASE_URL}/haircuts").json()
+    try:
+        response = requests.get(f"{BASE_URL}/haircuts")
+        response.raise_for_status()
+        return response.json()
+    except (requests.exceptions.RequestException, ValueError):
+        return []
 
 
 def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -> None:
@@ -22,5 +27,9 @@ def update_info_in_display(label_income: ttk.Label, label_haircuts: ttk.Label) -
 
             label_income.configure(text=f"Total ganado: ${income}")  # type: ignore
             label_haircuts.configure(text=f"Cortes realizados: {total_haircuts}")  # type: ignore
+        else:
+            label_income.configure(text="Total ganado: $0")  # type: ignore
+            label_haircuts.configure(text="Cortes realizados: 0")  # type: ignore
     except FileNotFoundError:
         label_income.configure(text="Total ganado: $0")  # type: ignore
+        label_haircuts.configure(text="Cortes realizados: 0")  # type: ignore
