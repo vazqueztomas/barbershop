@@ -72,14 +72,6 @@ rb_barba = ttk.Radiobutton(
     frame_radio_buttons, text="Barba", variable=selected_option, value=3
 )
 rb_barba.pack(padx=10, pady=5, anchor="w", side="left")
-
-button_show_graphics = ttk.Button(
-    tab_register_haircut,
-    text="Mostrar Graficos",
-    command=lambda: messagebox.showinfo("Info", "Coming soon"),  # type: ignore
-)
-button_show_graphics.pack(padx=10, pady=10, fill="x")
-
 # Frame to hold the buttons side by side
 button_frame = ttk.Frame(tab_register_haircut)
 button_frame.pack(fill="x")
@@ -124,7 +116,7 @@ def update_treeview():
     except requests.exceptions.RequestException:
         messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
         tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
-        
+
 
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
 
@@ -192,8 +184,8 @@ def populate_haircuts_tree(tree):
     except requests.exceptions.RequestException:
         messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
         tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
-        
-        
+
+
 populate_haircuts_tree(tree)
 
 
