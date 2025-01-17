@@ -12,6 +12,7 @@ from barbershop.gui.update_information_in_display import (
     update_info_in_display,
 )
 from barbershop.gui.utils.generate_label import generate_label
+from customtkinter import CTkButton
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
@@ -76,7 +77,7 @@ rb_barba.pack(padx=10, pady=5, anchor="w", side="left")
 button_frame = ttk.Frame(tab_register_haircut)
 button_frame.pack(fill="x")
 
-button_registrar = ttk.Button(
+button_registrar = CTkButton(
     button_frame,
     text="Registrar nuevo corte",
     command=lambda: [
