@@ -1,7 +1,10 @@
-from barbershop.gui.update_information_in_display import get_haircuts_list
-from tkinter import messagebox
 import tkinter as tk
+from tkinter import messagebox
+
 import requests
+
+from barbershop.gui.update_information_in_display import get_haircuts_list
+
 
 def update_treeview(tree) -> None:
     tree.delete(*tree.get_children())

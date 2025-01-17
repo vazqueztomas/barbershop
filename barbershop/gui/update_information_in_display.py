@@ -2,8 +2,8 @@ from tkinter import ttk
 
 import requests
 
-from barbershop.models.haircut import Haircut
 from barbershop.gui.constants import BASE_URL
+from barbershop.models.haircut import Haircut
 
 
 def get_haircuts_list() -> list[dict[str, Haircut]]:
