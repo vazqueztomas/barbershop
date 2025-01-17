@@ -4,14 +4,14 @@ from tkinter import messagebox, ttk
 import requests
 from tkcalendar import Calendar  # type: ignore
 
-from barbershop.gui.constants import BASE_URL
-from barbershop.gui.haircut_registration import register_new_haircut
-from barbershop.gui.show_historico import show_historico
-from barbershop.gui.update_information_in_display import (
-    get_haircuts_list,
+from .constants import BASE_URL
+from .haircut_registration import register_new_haircut
+from .show_historico import display_historical_cuts
+from .update_information_in_display import (
     update_info_in_display,
 )
-from barbershop.gui.utils.generate_label import generate_label
+from .utils.generate_label import generate_label
+from .utils.update_treeview import update_treeview
 
 columns = ("id", "Cliente", "Corte", "Precio", "Fecha", "Tipo")
 
@@ -91,32 +91,9 @@ button_registrar = ttk.Button(
             checkbox_pelo_y_barba=rb_pelo_y_barba,
             checkbox_barba=rb_barba,
         ),
-        update_treeview(),
+        update_treeview(tree),
     ],
 )
-
-
-def update_treeview():
-    tree.delete(*tree.get_children())
-    try:
-        haircuts_list = get_haircuts_list()
-        for haircut in haircuts_list:
-            tree.insert(
-                "",
-                tk.END,
-                values=(
-                    haircut["id"],
-                    haircut["client"],
-                    haircut["haircut"],
-                    haircut["prize"],
-                    haircut["date"],
-                    haircut["selected_option"],
-                ),
-            )
-    except requests.exceptions.RequestException:
-        messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
-        tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
-
 
 button_registrar.pack(pady=20, padx=10, fill="x", side="left")
 
@@ -133,7 +110,6 @@ label_total_haircuts.pack(padx=10, pady=5, anchor="w", side="right")
 
 
 def remove_haircut_from_database() -> None:
-    # get haircut id from the selected row
     haircut_id_from_row = tree.item(tree.selection()[0])["values"]
     try:
         requests.delete(f"{BASE_URL}/haircuts/{haircut_id_from_row[0]}")
@@ -146,48 +122,23 @@ def remove_haircut_from_database() -> None:
     )
 
 
-button_delete = ttk.Button(
+button_delete_cut = ttk.Button(
     button_frame,
     text="Eliminar Corte",
-    command=lambda: [remove_haircut_from_database(), update_treeview()],
+    command=lambda: [remove_haircut_from_database(), update_treeview(tree)],
 )
-button_delete.pack(padx=10, pady=10, fill="x", side="right")
+button_delete_cut.pack(padx=10, pady=10, fill="x", side="right")
 
 
-button_mostrar_historico = ttk.Button(
+button_display_historical_cuts = ttk.Button(
     tab_register_haircut,
     text="Historico",
-    command=lambda: show_historico(tree),
+    command=lambda: display_historical_cuts(tree),
 )
-button_mostrar_historico.pack(padx=10, pady=10, fill="x")
+button_display_historical_cuts.pack(padx=10, pady=10, fill="x")
 
 
 tree.pack(padx=10, pady=10, fill="both", expand=True)
-
-
-def populate_haircuts_tree(tree):
-    try:
-        haircuts_list = get_haircuts_list()
-        for haircut in haircuts_list:
-            tree.insert(
-                "",
-                tk.END,
-                values=(
-                    haircut["id"],
-                    haircut["client"],
-                    haircut["haircut"],
-                    haircut["prize"],
-                    haircut["date"],
-                    haircut["selected_option"],
-                ),
-            )
-    except requests.exceptions.RequestException:
-        messagebox.showerror("Error", "No se pudo obtener la lista de cortes.")  # type: ignore
-        tree.insert("", tk.END, values=("Error", "Error", "Error", "Error", "Error"))
-
-
-populate_haircuts_tree(tree)
-
 
 update_info_in_display(label_income=label_income, label_haircuts=label_total_haircuts)
 
