@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bb7c82d8bc3b879fe0e4e3288b18a338ff5eeb7bb374196b257ccce1f9afa635"
+            "sha256": "e6c46359f2539d6029fc48f85b79f2c4ec24835de60fb10b75ddad1dbd88dbf9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -177,6 +177,23 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6'",
             "version": "==0.4.6"
+        },
+        "customtkinter": {
+            "hashes": [
+                "sha256:14ad3e7cd3cb3b9eb642b9d4e8711ae80d3f79fb82545ad11258eeffb2e6b37c",
+                "sha256:fd8db3bafa961c982ee6030dba80b4c2e25858630756b513986db19113d8d207"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==5.2.2"
+        },
+        "darkdetect": {
+            "hashes": [
+                "sha256:a7509ccf517eaad92b31c214f593dbcf138ea8a43b2935406bbd565e15527a85",
+                "sha256:b5428e1170263eb5dea44c25dc3895edd75e6f52300986353cd63533fe7df8b1"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==0.8.0"
         },
         "dill": {
             "hashes": [
