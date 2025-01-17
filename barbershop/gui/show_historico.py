@@ -4,7 +4,7 @@ from tkinter import ttk
 from barbershop.gui.constants import FILE_PATH
 
 
-def show_historico(tree: ttk.Treeview):  # pylint: disable=too-many-locals
+def display_historical_cuts(tree: ttk.Treeview):  # pylint: disable=too-many-locals
     window = tk.Tk()
     window.title("Historico de cortes")
 

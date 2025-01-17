@@ -12,7 +12,7 @@ router = APIRouter(prefix="/haircuts")
 def get_haircuts() -> list[Haircut]:
     haircuts_list: list[Haircut] = []
     for haircut in haircuts_collection.find():
-        haircuts_list.append(haircut)
+        haircuts_list.append(haircut)  # noqa: PERF402
 
     return haircuts_list
 
