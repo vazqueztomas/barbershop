@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  checkout-and-use-yaml:
+  testing:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del repositorio actual
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Execute tests
+      - name: Tests
         uses: 'vazqueztomas/pipelines-template@main'
           
