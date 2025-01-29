@@ -4,9 +4,9 @@ from fastapi import APIRouter
 router = APIRouter(prefix="/haircuts")
 
 HAIRCUTS_LIST = [
-    Haircut(id=1,name="Tomas", price=1200, description="Buen corte"),
-    Haircut(id=2,name="Tomas", price=1200, description="Buen corte"),
-    Haircut(id=3,name="Tomas", price=1200, description="Buen corte"),
+    Haircut(id="1",client="Tomas", prize=1200, haircut="Degrade",date="12/12/12", selected_option="Pelo"),
+    Haircut(id="2",client="Tomas", prize=1200, haircut="Degrade",date="12/12/12", selected_option="Pelo"),
+    Haircut(id="3",client="Tomas", prize=1200, haircut="Degrade",date="12/12/12", selected_option="Pelo"),
 ]
 
 
