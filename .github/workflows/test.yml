@@ -12,6 +12,6 @@ jobs:
       - name: Checkout del repositorio actual
         uses: actions/checkout@v3
 
-      - name: Ejecutar pipeline template
+      - name: Execute tests
         uses: 'vazqueztomas/pipelines-template@main'
           
