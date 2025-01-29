@@ -17,5 +17,5 @@ pytest-cov = "==6.0.0"
 python_version = "*"
 
 [scripts]
-test = "pytest -m ./tests"
+test = "pytest ./tests"
 
