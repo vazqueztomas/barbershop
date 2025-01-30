@@ -1,9 +1,10 @@
 import pytest
 from barbershop.models import Haircut
+from typing import Any
 
 
 @pytest.fixture
-def haircuts_list() -> list[Haircut]:
+def haircuts_list() -> list[dict[str, Any]]:
     return [
         Haircut(
             id="1",
