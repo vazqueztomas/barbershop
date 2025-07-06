@@ -7,15 +7,15 @@ name = "pypi"
 fastapi = "==0.115.5"
 pytest = "==8.3.3"
 httpx = "==0.28.0"
-tkcalendar = "*"
-customtkinter = "==5.2.2"
+pyodbc = "*"
+loguru = "*"
 
 [dev-packages]
 pytest-cov = "==6.0.0"
 
 [requires]
-python_version = "*"
+python_version = "3.11"
 
 [scripts]
-test = "pytest ./tests"
-
+server = "uvicorn barbershop.main:app --reload"
+test = "pytest --cov=barbershop --cov-report=html --cov-report=term"
