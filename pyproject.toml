@@ -1,18 +1,16 @@
-[build-system]
-requires = ["setuptools==68.0.0", "setuptools-pipfile==0.7.0", "wheel==0.41.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "barbershop"
 version = "0.1.0"
-description = "Barbershop application"
+description = "A barbershop management application"
+authors = ["Tomas Vazquez <tomasvazquez@example.com>"]
 license = "MIT"
 
-dynamic = ["dependencies"]
+[tool.poetry.dependencies]
+python = "^3.8"
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "tests"
-]
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
