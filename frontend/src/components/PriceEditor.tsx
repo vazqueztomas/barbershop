@@ -16,6 +16,9 @@ export function PriceEditor({
   onCancel,
 }: PriceEditorProps) {
   const formatCurrency = (amount: number) => {
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return '$0,00';
+    }
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',

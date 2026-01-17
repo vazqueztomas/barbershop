@@ -12,6 +12,16 @@ export function DailyHistoryList({ history }: DailyHistoryProps) {
     return <div className="history-list empty">No hay historial disponible</div>;
   }
 
+  const formatCurrency = (amount: number) => {
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return '$0,00';
+    }
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+    }).format(amount);
+  };
+
   return (
     <div className="history-list">
       <h3>Historial de Ventas</h3>
@@ -26,7 +36,7 @@ export function DailyHistoryList({ history }: DailyHistoryProps) {
           {entries.map(([date, total]) => (
             <tr key={date}>
               <td>{new Date(date).toLocaleDateString('es-AR')}</td>
-              <td className="total">${total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
+              <td className="total">{formatCurrency(total)}</td>
             </tr>
           ))}
         </tbody>
