@@ -145,3 +145,4 @@ build/
 *.log
 .DS_Store
 *.pem
+testing.db
