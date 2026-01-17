@@ -1,3 +1,3 @@
-from .haircut import Haircut
+from .haircut import Haircut, HaircutCreate
 
-__all__ = ["Haircut"]
+__all__ = ["Haircut", "HaircutCreate"]

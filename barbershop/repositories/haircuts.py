@@ -1,44 +1,99 @@
-from uuid import UUID
+from datetime import date
+from uuid import UUID, uuid4
 
-from barbershop.models import Haircut
-
-from .base import BaseRepository
+from barbershop.models import Haircut, HaircutCreate
 from .handler_errors import NotFoundResponse
 
 
-class HaircutRepository(BaseRepository[Haircut]):
+class HaircutRepository:
     def __init__(self, connection):
         self.connection = connection
 
     def get_all(self) -> list[Haircut]:
-        cuts = self.connection.execute("SELECT * FROM haircuts").fetchall()
-        return [Haircut(id=cut[0], name=cut[1], price=cut[2]) for cut in cuts]
+        cuts = self.connection.execute("SELECT id, name, price, date FROM haircuts ORDER BY date DESC, rowid DESC").fetchall()
+        return [
+            Haircut(
+                id=UUID(cut[0]),
+                name=cut[1],
+                price=cut[2],
+                date=date.fromisoformat(cut[3]) if cut[3] else date.today()
+            )
+            for cut in cuts
+        ]
 
     def get_by_id(self, id: UUID) -> Haircut:
         cursor = self.connection.execute(
-            "SELECT id, name, price FROM haircuts WHERE id = ?;", (str(id),)
+            "SELECT id, name, price, date FROM haircuts WHERE id = ?;", (str(id),)
         )
         cut = cursor.fetchone()
         if cut:
-            return Haircut(id=UUID(cut[0]), name=cut[1], price=cut[2])
+            return Haircut(
+                id=UUID(cut[0]),
+                name=cut[1],
+                price=cut[2],
+                date=date.fromisoformat(cut[3]) if cut[3] else date.today()
+            )
         raise NotFoundResponse(status_code=404, detail="Haircut not found")
 
-    def create(self, item: Haircut) -> Haircut:
+    def get_by_date(self, cutoff_date: date) -> list[Haircut]:
+        cursor = self.connection.execute(
+            "SELECT id, name, price, date FROM haircuts WHERE date = ? ORDER BY rowid DESC;", (cutoff_date.isoformat(),)
+        )
+        cuts = cursor.fetchall()
+        return [
+            Haircut(
+                id=UUID(cut[0]),
+                name=cut[1],
+                price=cut[2],
+                date=date.fromisoformat(cut[3]) if cut[3] else date.today()
+            )
+            for cut in cuts
+        ]
+
+    def get_daily_summary(self) -> dict[date, float]:
+        cursor = self.connection.execute(
+            "SELECT date, SUM(price) FROM haircuts GROUP BY date ORDER BY date DESC"
+        )
+        results = cursor.fetchall()
+        return {date.fromisoformat(row[0]): row[1] for row in results if row[0]}
+
+    def create(self, item: HaircutCreate) -> Haircut:
+        haircut = Haircut(
+            id=uuid4(),
+            name=item.name,
+            price=item.price,
+            date=item.date
+        )
         self.connection.execute(
-            "INSERT INTO haircuts (id, name, price) VALUES (?, ?, ?);",
-            (str(item.id), item.name, item.price),
+            "INSERT INTO haircuts (id, name, price, date) VALUES (?, ?, ?, ?);",
+            (str(haircut.id), haircut.name, haircut.price, haircut.date.isoformat()),
         )
         self.connection.commit()
-        return item
+        return haircut
 
     def update(self, item: Haircut) -> Haircut:
         self.connection.execute(
-            "UPDATE haircuts SET name = ?, price = ? WHERE id = ?",
-            (str(item.id), item.name, item.price),
+            "UPDATE haircuts SET name = ?, price = ?, date = ? WHERE id = ?",
+            (item.name, item.price, item.date.isoformat(), str(item.id)),
         )
         self.connection.commit()
         return item
+
+    def update_price(self, id: UUID, new_price: float) -> Haircut:
+        self.connection.execute(
+            "UPDATE haircuts SET price = ? WHERE id = ?",
+            (new_price, str(id)),
+        )
+        self.connection.commit()
+        return self.get_by_id(id)
 
     def delete(self, id: UUID) -> None:
         self.connection.execute("DELETE FROM haircuts WHERE id = ?", (str(id),))
         self.connection.commit()
+
+    def delete_by_date(self, cutoff_date: date) -> int:
+        cursor = self.connection.execute(
+            "DELETE FROM haircuts WHERE date = ?", (cutoff_date.isoformat(),)
+        )
+        self.connection.commit()
+        return cursor.rowcount
