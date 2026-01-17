@@ -6,10 +6,16 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/haircuts': {
-        target: 'http://localhost:8000',
-        changeOrigin: true
+      '^/(haircuts|docs|openapi|redoc)': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
       }
     }
-  }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/tests/setup.ts',
+  },
 })

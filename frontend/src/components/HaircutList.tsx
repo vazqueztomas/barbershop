@@ -1,4 +1,3 @@
-import React from 'react';
 import { Haircut } from '../types';
 
 interface HaircutListProps {
@@ -15,25 +14,30 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
 
   const formatCurrency = (amount: number) => {
     if (isNaN(amount) || amount === null || amount === undefined) {
-      return '$0,00';
+      return '$0';
     }
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('es-AR');
+  const formatTime = (dateStr: string) => {
+    return new Date(dateStr).toLocaleTimeString('es-AR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
-    <div className="haircut-list">
-      <table>
+    <div className="table-responsive">
+      <table className="data-table">
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>Corte</th>
+            <th>Hora</th>
+            <th>Servicio</th>
             <th>Precio</th>
             <th>Acciones</th>
           </tr>
@@ -41,19 +45,19 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
         <tbody>
           {haircuts.map((haircut) => (
             <tr key={haircut.id}>
-              <td>{formatDate(haircut.date)}</td>
-              <td>{haircut.name}</td>
-              <td className="price-cell">
-                <span className="price">{formatCurrency(haircut.price)}</span>
+              <td>{formatTime(haircut.date)}</td>
+              <td>
+                <span className="badge">{haircut.name}</span>
+              </td>
+              <td className="price">{formatCurrency(haircut.price)}</td>
+              <td className="actions">
                 <button
                   onClick={() => onEditPrice(haircut.id, haircut.price)}
-                  className="price-btn"
+                  className="icon-btn"
                   title="Cambiar precio"
                 >
                   ✏️
                 </button>
-              </td>
-              <td className="actions">
                 <button onClick={() => onEdit(haircut)} className="edit-btn">
                   Editar
                 </button>
@@ -61,7 +65,7 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
                   onClick={() => onDelete(haircut.id)}
                   className="delete-btn"
                 >
-                  Eliminar
+                  ✕
                 </button>
               </td>
             </tr>

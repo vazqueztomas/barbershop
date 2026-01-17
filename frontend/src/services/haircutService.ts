@@ -1,10 +1,9 @@
 import axios from 'axios';
 import { DailySummary, DailyHistory, Haircut, HaircutCreate } from '../types';
+import { API_URL } from '../config';
 
-const API_BASE_URL = '/haircuts';
-
-export const api = axios.create({
-  baseURL: API_BASE_URL,
+const api = axios.create({
+  baseURL: `${API_URL}/haircuts`,
   headers: {
     'Content-Type': 'application/json',
   },
