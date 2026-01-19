@@ -10,9 +10,11 @@ interface HaircutFormProps {
 export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProps) {
   const today = new Date().toISOString().split('T')[0];
   const [formData, setFormData] = React.useState<HaircutCreate>({
-    name: initialData?.name || '',
+    clientName: initialData?.clientName || '',
+    serviceName: initialData?.serviceName || '',
     price: initialData?.price ?? 0,
     date: initialData?.date || today,
+    time: initialData?.time || '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,21 +27,48 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // No enviar el campo time si está vacío
+    const submitData = { ...formData };
+    if (!submitData.time || submitData.time.trim() === '') {
+      delete submitData.time;
+    }
+    onSubmit(submitData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="haircut-form">
       <div className="form-group">
-        <label htmlFor="name">Nombre del corte:</label>
+        <label htmlFor="clientName">Nombre del cliente:</label>
         <input
           type="text"
-          id="name"
-          name="name"
-          value={formData.name}
+          id="clientName"
+          name="clientName"
+          value={formData.clientName}
+          onChange={handleChange}
+          placeholder="Ej: Juan Pérez"
+          required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="serviceName">Servicio:</label>
+        <input
+          type="text"
+          id="serviceName"
+          name="serviceName"
+          value={formData.serviceName}
           onChange={handleChange}
           placeholder="Ej: Degradado, Clásico, etc."
           required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="time">Hora (opcional):</label>
+        <input
+          type="time"
+          id="time"
+          name="time"
+          value={formData.time || ''}
+          onChange={handleChange}
         />
       </div>
       <div className="form-group">

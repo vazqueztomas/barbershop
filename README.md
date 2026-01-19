@@ -1,6 +1,6 @@
 # Barbershop Management System
 
-Una aplicación completa para la gestión de barberías, desarrollada con Python, FastAPI y Tkinter. Este sistema permite registrar cortes de cabello, gestionar clientes, visualizar estadísticas y mantener un historial completo de las operaciones.
+Una aplicación completa y moderna para la gestión de barberías, desarrollada con arquitectura full-stack. Este sistema permite registrar cortes de cabello, gestionar clientes, visualizar estadísticas avanzadas y mantener un historial completo de las operaciones con interfaces tanto de escritorio como web.
 
 ## 🚀 Características
 
@@ -8,22 +8,38 @@ Una aplicación completa para la gestión de barberías, desarrollada con Python
 - **Registro de Cortes**: Sistema completo para registrar nuevos cortes de cabello con información del cliente, tipo de corte, precio y fecha
 - **Gestión de Clientes**: Mantenimiento de base de datos de clientes y su historial de cortes
 - **Tipos de Servicio**: Soporte para diferentes tipos de cortes (pelo, barba, pelo y barba)
-- **Historial Completo**: Visualización y filtrado del historial de cortes por fecha y tipo
-- **Eliminación de Registros**: Funcionalidad para eliminar cortes registrados
-- **Estadísticas en Tiempo Real**: Visualización de ingresos totales y número de cortes realizados
+- **Historial Completo**: Visualización y filtrado avanzado del historial de cortes por fecha y tipo
+- **Eliminación de Registros**: Funcionalidad para eliminar cortes individuales o por fecha
+- **Estadísticas en Tiempo Real**: Dashboard completo con gráficos interactivos y métricas avanzadas
+- **Edición de Precios**: Funcionalidad para actualizar precios de cortes existentes
+- **Exportación de Datos**: Exportar historial y datos a formato Excel
+
+### Interfaces Disponibles
+- **Interfaz de Escritorio**: Aplicación nativa con Tkinter y CustomTkinter
+- **Interfaz Web**: Aplicación moderna con React + TypeScript + Vite
+- **API REST**: Endpoints completos para integración con terceros
 
 ### Arquitectura
-- **Backend API**: REST API construida con FastAPI para la gestión de datos
-- **Base de Datos**: MongoDB con Motor para operaciones asíncronas
-- **Interfaz Gráfica**: Aplicación de escritorio con Tkinter y CustomTkinter
-- **Validación de Datos**: Pydantic para la validación y serialización de datos
-- **Testing**: Suite de pruebas con pytest
+- **Backend API**: REST API construida con FastAPI y validación con Pydantic
+- **Base de Datos**: SQLite ligera y eficiente con repositorios estructurados
+- **Frontend Web**: React 18 + TypeScript + Vite con gráficos Recharts
+- **Interfaz de Escritorio**: Tkinter y CustomTkinter para aplicación nativa
+- **Testing**: Suite completa de pruebas con pytest y Vitest
+- **Calidad de Código**: Configuración con Ruff, Pylint y pre-commit hooks
 
 ## 📋 Requisitos del Sistema
 
-- **Python**: 3.13 o superior
-- **MongoDB**: Base de datos MongoDB (local o en la nube)
-- **Sistema Operativo**: Windows, macOS o Linux
+### Backend
+- **Python**: 3.8 o superior
+- **Poetry**: Gestor de dependencias de Python
+- **SQLite**: Base de datos (incluida por defecto)
+
+### Frontend Web
+- **Node.js**: 18 o superior
+- **npm**: Gestor de paquetes de Node.js
+
+### Sistema Operativo
+- **Windows**, **macOS** o **Linux**
 
 ## 🛠️ Instalación
 
@@ -33,102 +49,139 @@ git clone <repository-url>
 cd barbershop
 ```
 
-### 2. Configurar Entorno Virtual
+### 2. Instalar Backend (Python + Poetry)
 ```bash
-# Usando pipenv (recomendado)
-pipenv install
-pipenv shell
+# Instalar Poetry si no lo tienes
+curl -sSL https://install.python-poetry.org | python3 -
 
-# O usando venv tradicional
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-pip install -r requirements.txt
+# Instalar dependencias del backend
+poetry install
+
+# Activar entorno virtual
+poetry shell
 ```
 
-### 3. Configurar Variables de Entorno
-Crea un archivo `.env` en la raíz del proyecto:
+### 3. Instalar Frontend Web
+```bash
+# Navegar al directorio del frontend
+cd frontend
+
+# Instalar dependencias de Node.js
+npm install
+
+# Volver al directorio raíz
+cd ..
+```
+
+### 4. Configurar Variables de Entorno (Opcional)
+Crea un archivo `.env` en la raíz del proyecto para configuración personalizada:
 ```env
-MONGODB_URL="mongodb+srv://usuario:password@cluster.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-```
+# Configuración de la base de datos (SQLite por defecto)
+DATABASE_URL="sqlite:///barbershop.db"
 
-### 4. Instalar Dependencias de Desarrollo
-```bash
-pipenv install --dev
+# Configuración del servidor
+HOST="127.0.0.1"
+PORT="8000"
 ```
 
 ## 🚀 Ejecución
 
-### Opción 1: Usando los Scripts de Pipenv
+### Opción 1: Ejecución Completa (Recomendado)
 ```bash
-# Iniciar la aplicación de escritorio
-pipenv run start
+# Terminal 1: Iniciar el servidor API
+poetry run uvicorn barbershop.app:app --reload
 
+# Terminal 2: Iniciar el frontend web
+cd frontend
+npm run dev
+
+# Terminal 3: Iniciar la aplicación de escritorio (opcional)
+poetry run python -m barbershop.gui.main
+```
+
+### Opción 2: Solo Backend + Escritorio
+```bash
 # Iniciar el servidor API
-pipenv run start-server
+poetry run uvicorn barbershop.app:app --reload
 
-# Formatear y lintear el código
-pipenv run format
+# En otra terminal, iniciar la aplicación de escritorio
+poetry run python -m barbershop.gui.main
 ```
 
-### Opción 2: Ejecución Manual
+### Opción 3: Solo Frontend Web (con API corriendo)
 ```bash
-# Iniciar el servidor FastAPI
-uvicorn barbershop.app:app --reload
-
-# Iniciar la aplicación Tkinter (en otra terminal)
-python -m barbershop.gui.main
+# Asegúrate que el backend está corriendo en http://127.0.0.1:8000
+cd frontend
+npm run dev
 ```
 
-### Opción 3: Usando Python Directamente
-```bash
-# Servidor API
-python -m barbershop.app
-
-# Aplicación GUI
-python -m barbershop.gui.main
-```
+### URLs de Acceso
+- **API REST**: `http://127.0.0.1:8000`
+- **Documentación API (Swagger)**: `http://127.0.0.1:8000/docs`
+- **Frontend Web**: `http://localhost:3000`
+- **Aplicación de Escritorio**: Ventana nativa
 
 ## 📁 Estructura del Proyecto
 
 ```
 barbershop/
-├── barbershop/                 # Paquete principal
+├── barbershop/                 # Paquete principal del backend
 │   ├── __init__.py
-│   ├── app.py                  # Aplicación FastAPI
-│   ├── gui/                    # Interfaz gráfica
+│   ├── app.py                  # Aplicación FastAPI principal
+│   ├── main.py                 # Punto de entrada
+│   ├── gui/                    # Interfaz gráfica de escritorio
 │   │   ├── __init__.py
-│   │   ├── main.py            # Ventana principal
-│   │   ├── constants.py       # Constantes de la GUI
+│   │   ├── main.py            # Ventana principal de la GUI
+│   │   ├── constants.py       # Constantes y configuración
 │   │   ├── haircut_registration.py
 │   │   ├── show_historico.py
+│   │   ├── read_register.py
 │   │   ├── update_information_in_display.py
 │   │   └── utils/             # Utilidades de la GUI
 │   │       ├── __init__.py
 │   │       ├── generate_label.py
-│   │       └── update_treeview.py
-│   ├── models/                 # Modelos de datos
+│   │       └── update_tree_view.py
+│   ├── models/                 # Modelos de datos Pydantic
 │   │   ├── __init__.py
 │   │   └── haircut.py
-│   ├── routes/                 # Rutas de la API
+│   ├── routes/                 # Rutas de la API REST
 │   │   ├── __init__.py
 │   │   └── haircuts.py
+│   ├── repositories/           # Capa de acceso a datos
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── haircuts.py
+│   │   └── handler_errors.py
 │   └── database/               # Conexión a la base de datos
 │       ├── __init__.py
-│       └── database.py
-├── tests/                      # Pruebas
-│   ├── api/
-│   │   └── haircuts/
-│   │       ├── conftest.py
-│   │       └── test_haircuts.py
-│   └── utils/
-│       ├── __init__.py
-│       └── test_functions.py
+│       └── create_connection.py
+├── frontend/                   # Aplicación web frontend
+│   ├── src/
+│   │   ├── components/         # Componentes React
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── HaircutForm.tsx
+│   │   │   ├── HaircutList.tsx
+│   │   │   └── Statistics.tsx
+│   │   ├── hooks/              # Hooks personalizados
+│   │   │   └── useHaircuts.ts
+│   │   ├── services/           # Servicios de API
+│   │   │   └── haircutService.ts
+│   │   ├── types/              # Tipos TypeScript
+│   │   │   └── index.ts
+│   │   ├── tests/              # Tests del frontend
+│   │   └── App.tsx, main.tsx
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+├── tests/                      # Suite de pruebas completa
+│   ├── api/                    # Tests de API
+│   ├── core/                   # Tests de lógica de negocio
+│   ├── database/               # Tests de base de datos
+│   └── frontend/               # Tests de frontend
 ├── .env                        # Variables de entorno
 ├── .gitignore
 ├── .pre-commit-config.yaml
-├── Pipfile                     # Dependencias de Pipenv
-├── Pipfile.lock
-├── pyproject.toml             # Configuración del proyecto
+├── pyproject.toml             # Configuración de Poetry y proyecto
 ├── README.md
 └── TODO.md                     # Tareas pendientes
 ```
@@ -150,22 +203,41 @@ El proyecto incluye configuración para:
 
 ## 🧪 Testing
 
-### Ejecutar Pruebas
+### Backend Tests
 ```bash
-# Usando pytest
-pytest
+# Ejecutar todas las pruebas del backend
+poetry run pytest
 
-# Usando pipenv
-pipenv run pytest
+# Con cobertura de código
+poetry run pytest --cov=barbershop
+
+# Ejecutar pruebas específicas
+poetry run pytest tests/api/
+poetry run pytest tests/database/
+poetry run pytest tests/core/
+```
+
+### Frontend Tests
+```bash
+# Navegar al directorio del frontend
+cd frontend
+
+# Ejecutar pruebas del frontend
+npm run test
+
+# Ejecutar pruebas en modo watch
+npm run test:watch
 
 # Con cobertura
-pytest --cov=barbershop
+npm run test:coverage
 ```
 
 ### Estructura de Pruebas
 - **Tests de API**: Pruebas para los endpoints de FastAPI
-- **Tests de Utilidades**: Pruebas para funciones auxiliares
-- **Tests de Integración**: Pruebas de flujo completo
+- **Tests de Base de Datos**: Pruebas de repositorios y conexión
+- **Tests de Lógica de Negocio**: Pruebas de funciones core
+- **Tests de Frontend**: Pruebas de componentes React con Vitest
+- **Tests de Integración**: Pruebas de flujo completo end-to-end
 
 ## 📊 API Endpoints
 
@@ -174,46 +246,76 @@ pytest --cov=barbershop
 - `GET /haircuts/` - Obtener todos los cortes
 - `GET /haircuts/{haircut_id}` - Obtener un corte específico
 - `POST /haircuts/` - Crear un nuevo corte
-- `DELETE /haircuts/{haircut_id}` - Eliminar un corte
+- `PUT /haircuts/{haircut_id}` - Actualizar un corte existente
+- `PATCH /haircuts/{haircut_id}/price` - Actualizar precio de un corte
+- `DELETE /haircuts/{haircut_id}` - Eliminar un corte específico
+- `DELETE /haircuts/date/{date}` - Eliminar cortes por fecha
+- `GET /haircuts/date/{date}` - Obtener cortes por fecha específica
+- `GET /haircuts/summary/daily` - Obtener resumen diario de ingresos
 
 ### Documentación de la API
 Una vez iniciado el servidor, puedes acceder a:
 - **Swagger UI**: `http://127.0.0.1:8000/docs`
 - **ReDoc**: `http://127.0.0.1:8000/redoc`
+- **OpenAPI JSON**: `http://127.0.0.1:8000/openapi.json`
 
 ## 🎨 Interfaz de Usuario
 
-### Pestañas Principales
-1. **Registro**: Formulario para registrar nuevos cortes
-2. **Gráficos**: Visualización de estadísticas (en desarrollo)
+### Interfaz Web (React)
+La aplicación web moderna incluye:
+- **Dashboard Principal**: Vista completa con estadísticas y acciones rápidas
+- **Gestión de Cortes**: Formulario intuitivo para crear, editar y eliminar cortes
+- **Panel de Estadísticas**: Gráficos interactivos con Recharts
+  - Gráfico de área: Ingresos de los últimos 7 días
+  - Gráfico de barras: Cortes por día de la semana
+  - Gráfico circular: Distribución por tipo de servicio
+  - Gráfico de línea: Tendencia mensual
+- **Tabla de Historial**: Listado completo con opciones de filtrado y búsqueda
+- **Exportación de Datos**: Descargar historial en formato Excel
 
-### Funcionalidades de la GUI
-- Formulario de registro con validación
-- Calendario para selección de fechas
-- Radio buttons para tipo de corte
-- Tabla con historial de cortes
-- Botones para eliminar y ver historial
-- Estadísticas en tiempo real
+### Interfaz de Escritorio (Tkinter)
+La aplicación nativa incluye:
+- **Registro de Cortes**: Formulario con validación en tiempo real
+- **Historial Completo**: Tabla con filtrado por fecha y tipo
+- **Edición de Precios**: Funcionalidad para actualizar precios existentes
+- **Estadísticas en Tiempo Real**: Métricas actualizadas instantáneamente
+- **Calendario Integrado**: Selección visual de fechas
+- **Eliminación Masiva**: Opción para eliminar cortes por fecha
+
+### Características Compartidas
+- Validación de datos en tiempo real
+- Sincronización automática con la base de datos
+- Interfaz responsive y accesible
+- Manejo robusto de errores
 
 ## 🔮 Roadmap (Ver TODO.md)
 
-### Base de Datos
-- [x] Conexión a MongoDB
-- [x] Migración de CSV a base de datos
-- [ ] Creación de usuarios admin
-- [ ] Testing de conexión a base de datos
+### ✅ Recientemente Completado
+- [x] Migración de MongoDB a SQLite para mayor simplicidad
+- [x] Implementación de arquitectura de repositorios
+- [x] Desarrollo completo de frontend React + TypeScript
+- [x] Adición de gráficos interactivos con Recharts
+- [x] Configuración de Poetry para gestión de dependencias
+- [x] Suite completa de pruebas con pytest y Vitest
 
-### Mejoras de UI/UX
-- [ ] Mejorar estilos de botones y formularios
-- [ ] Reorganizar etiquetas y componentes
-- [ ] Solución para pestañas en Tkinter
-- [ ] Filtros con lógica correcta
+### En Progreso
+- [ ] Sistema de autenticación y usuarios admin
+- [ ] Mejoras en la interfaz de escritorio
+- [ ] Optimización de consultas a base de datos
 
-### Funcionalidades Avanzadas
-- [ ] Integración con IA para mejoras
-- [ ] Gráficos con matplotlib
-- [ ] Integración con MercadoPago
-- [ ] Sistema de citas y reservas
+### Próximamente
+- [ ] Integración con MercadoPago para pagos
+- [ ] Sistema de citas y reservas online
+- [ ] Dashboard avanzado con métricas en tiempo real
+- [ ] Aplicación móvil (React Native)
+- [ ] Integración con calendarios externos (Google Calendar)
+- [ ] Sistema de notificaciones por email/SMS
+
+### Mejoras Técnicas
+- [ ] Implementación de WebSocket para actualizaciones en tiempo real
+- [ ] Caching con Redis para mejor rendimiento
+- [ ] Dockerización para despliegue simplificado
+- [ ] CI/CD pipeline automatizado
 
 ## 🤝 Contribución
 
@@ -243,12 +345,25 @@ Si encuentras algún bug o necesitas soporte:
 
 ## 📈 Estadísticas del Proyecto
 
-- **Lenguaje**: Python
-- **Framework Backend**: FastAPI
-- **Framework Frontend**: Tkinter + CustomTkinter
-- **Base de Datos**: MongoDB
-- **Testing**: pytest
-- **Calidad de Código**: Ruff, Pylint, Pre-commit
+### Backend
+- **Lenguaje**: Python 3.8+
+- **Framework**: FastAPI con Pydantic
+- **Base de Datos**: SQLite con arquitectura de repositorios
+- **Testing**: pytest con cobertura de código
+- **Calidad de Código**: Ruff, Pylint, Pre-commit hooks
+
+### Frontend
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Gráficos**: Recharts
+- **Testing**: Vitest + React Testing Library
+- **Estilos**: CSS moderno con diseño responsive
+
+### DevOps
+- **Gestión de Dependencias**: Poetry (Python), npm (Node.js)
+- **Control de Versiones**: Git con hooks pre-commit
+- **Calidad**: Linting automático y formateo de código
+- **Testing**: Suite completa con integración continua
 
 ---
 

@@ -78,7 +78,7 @@ export function useHaircuts() {
 
 export function useDailySummary() {
   const [summary, setSummary] = useState<DailySummary | null>(null);
-  const [history, setHistory] = useState<DailyHistory>({});
+  const [history, setHistory] = useState<DailyHistory>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

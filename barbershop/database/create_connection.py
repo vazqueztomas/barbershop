@@ -14,15 +14,27 @@ def create_connection(db_file):
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS haircuts (
                 id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
+                client_name TEXT NOT NULL,
+                service_name TEXT NOT NULL,
                 price REAL NOT NULL,
-                date TEXT DEFAULT CURRENT_DATE
+                date TEXT DEFAULT CURRENT_DATE,
+                time TEXT
             )
         """)
         cursor.execute("PRAGMA table_info(haircuts)")
         columns = [col[1] for col in cursor.fetchall()]
+        
+        # Migración para bases de datos antiguas
+        if "name" in columns and "client_name" not in columns:
+            # Renombrar columna name a service_name y agregar client_name
+            cursor.execute("ALTER TABLE haircuts RENAME COLUMN name TO service_name")
+            cursor.execute("ALTER TABLE haircuts ADD COLUMN client_name TEXT DEFAULT 'Cliente'")
+        
         if "date" not in columns:
             cursor.execute("ALTER TABLE haircuts ADD COLUMN date TEXT DEFAULT CURRENT_DATE")
+            
+        if "time" not in columns:
+            cursor.execute("ALTER TABLE haircuts ADD COLUMN time TEXT")
         conn.commit()
         logger.info(f"Connection to {db_file} established.")
     except sqlite3.Error as e:

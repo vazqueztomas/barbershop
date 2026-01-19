@@ -45,11 +45,58 @@ def get_haircut(haircut_id: UUID, conn=Depends(get_db)) -> Haircut:
 
 @router.post("/create")
 def create_haircut(haircut: HaircutCreate, conn=Depends(get_db)) -> Haircut:
+    print("=" * 60)
+    print("=== REQUEST RECIBIDA EN /haircuts/create ===")
+    print(f"haircut: {haircut}")
+    print(f"  clientName: {haircut.clientName} (type: {type(haircut.clientName)})")
+    print(f"  serviceName: {haircut.serviceName} (type: {type(haircut.serviceName)})")
+    print(f"  price: {haircut.price} (type: {type(haircut.price)})")
+    print(f"  date: {haircut.date} (type: {type(haircut.date)})")
+    print(f"  time: {haircut.time} (type: {type(haircut.time) if haircut.time is not None else 'None'})")
+    print("=" * 60)
     try:
         repo = HaircutRepository(conn)
-        return repo.create(haircut)
+        result = repo.create(haircut)
+        print(f"SUCCESS: Created haircut with id: {result.id}")
+        return result
+    except ValueError as e:
+        print(f"DATE ERROR: {e}")
+        raise HTTPException(status_code=422, detail=f"Formato de fecha inválido: {str(e)}. Use formato DD/MM/YYYY")
     except Exception as e:
+        print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error creating haircut: {str(e)}")
+
+
+@router.post("/debug-create")
+def debug_create_haircut(raw_body: dict, conn=Depends(get_db)) -> dict:
+    """
+    Endpoint temporal para debuggear el create
+    Acepta cualquier JSON y lo打印 sin validación
+    """
+    print("=" * 60)
+    print("=== DEBUG CREATE - RAW BODY ===")
+    print(f"raw_body: {raw_body}")
+    print(f"types:")
+    for key, value in raw_body.items():
+        print(f"  {key}: {value} (type: {type(value)})")
+    print("=" * 60)
+    
+    # Intentar crear el objeto manualmente
+    try:
+        haircut = HaircutCreate(**raw_body)
+        print(f"SUCCESS: HaircutCreate validado: {haircut}")
+    except Exception as e:
+        print(f"ERROR validando HaircutCreate: {e}")
+        return {"error": str(e), "raw_body": raw_body}
+    
+    try:
+        repo = HaircutRepository(conn)
+        result = repo.create(haircut)
+        return {"success": True, "id": str(result.id)}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @router.put("/update")
@@ -102,10 +149,34 @@ def delete_haircuts_by_date(cutoff_date: str, conn=Depends(get_db)) -> dict:
 
 
 @router.get("/history/daily")
-def get_daily_history(conn=Depends(get_db)) -> dict[str, float]:
+def get_daily_history(conn=Depends(get_db)) -> list[dict]:
     try:
-        summary = HaircutRepository(conn).get_daily_summary()
-        return {d.isoformat(): total for d, total in summary.items()}
+        repo = HaircutRepository(conn)
+        all_haircuts = repo.get_all()
+        
+        # Agrupar por fecha
+        by_date: dict[str, dict] = {}
+        for haircut in all_haircuts:
+            date_key = haircut.date.isoformat()
+            if date_key not in by_date:
+                by_date[date_key] = {"total": 0, "count": 0, "clients": []}
+            by_date[date_key]["total"] += haircut.price
+            by_date[date_key]["count"] += 1
+            by_date[date_key]["clients"].append(haircut.clientName)
+        
+        # Convertir a lista ordenada por fecha descendente
+        result = [
+            {
+                "date": date_key,
+                "total": data["total"],
+                "count": data["count"],
+                "clients": data["clients"]
+            }
+            for date_key, data in by_date.items()
+        ]
+        result.sort(key=lambda x: x["date"], reverse=True)
+        
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting history: {str(e)}")
 
