@@ -22,6 +22,7 @@ class HaircutCreate(BaseModel):
     date: str
     time: Optional[str] = None
     count: int = 0
+    tip: float = 0
 
 
 class Haircut(BaseModel):
@@ -32,6 +33,7 @@ class Haircut(BaseModel):
     date: date_type
     time: Optional[str] = None
     count: int = 0
+    tip: float = 0
 
     class Config:
         from_attributes = True

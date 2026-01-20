@@ -160,9 +160,10 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
         for haircut in all_haircuts:
             date_key = haircut.date.isoformat()
             if date_key not in by_date:
-                by_date[date_key] = {"total": 0, "count": 0, "clients": []}
+                by_date[date_key] = {"total": 0, "count": 0, "tip": 0, "clients": []}
             by_date[date_key]["total"] += haircut.price
             by_date[date_key]["count"] += haircut.count
+            by_date[date_key]["tip"] += haircut.tip
             by_date[date_key]["clients"].append(haircut.clientName)
         
         # Convertir a lista ordenada por fecha descendente
@@ -171,6 +172,7 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
                 "date": date_key,
                 "total": data["total"],
                 "count": data["count"],
+                "tip": data["tip"],
                 "clients": data["clients"]
             }
             for date_key, data in by_date.items()
@@ -201,10 +203,12 @@ def get_today_summary(conn=Depends(get_db)) -> dict:
         today_haircuts = repo.get_by_date(date_type.today())
         total = sum(h.price for h in today_haircuts)
         count = sum(h.count for h in today_haircuts)
+        tip = sum(h.tip for h in today_haircuts)
         return {
             "date": date_type.today().isoformat(),
             "count": count,
-            "total": total
+            "total": total,
+            "tip": tip
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting summary: {str(e)}")

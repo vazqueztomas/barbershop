@@ -28,7 +28,8 @@ def create_connection(db_file):
                 price REAL NOT NULL,
                 date TEXT DEFAULT CURRENT_DATE,
                 time TEXT,
-                count INTEGER DEFAULT 0
+                count INTEGER DEFAULT 0,
+                tip REAL DEFAULT 0
             )
         """)
         cursor.execute("PRAGMA table_info(haircuts)")
@@ -48,6 +49,9 @@ def create_connection(db_file):
 
         if "count" not in columns:
             cursor.execute("ALTER TABLE haircuts ADD COLUMN count INTEGER DEFAULT 0")
+        
+        if "tip" not in columns:
+            cursor.execute("ALTER TABLE haircuts ADD COLUMN tip REAL DEFAULT 0")
         
         # Create service_prices table
         cursor.execute("""
