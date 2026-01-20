@@ -4,9 +4,9 @@ import { Statistics } from './Statistics';
 import { Haircut } from '../types';
 
 const mockHaircuts: Haircut[] = [
-  { id: '1', clientName: 'Juan', serviceName: 'Corte', price: 5000, date: '03/01/2026', count: 1 },
-  { id: '2', clientName: 'Pedro', serviceName: 'Corte', price: 13000, date: '08/01/2026', count: 2 },
-  { id: '3', clientName: 'Maria', serviceName: 'Corte', price: 60000, date: '09/01/2026', count: 8 },
+  { id: '1', clientName: 'Juan', serviceName: 'Corte', price: 5000, date: '03/01/2026', count: 1, tip: 500 },
+  { id: '2', clientName: 'Pedro', serviceName: 'Corte', price: 13000, date: '08/01/2026', count: 2, tip: 0 },
+  { id: '3', clientName: 'Maria', serviceName: 'Corte', price: 60000, date: '09/01/2026', count: 8, tip: 1000 },
 ];
 
 vi.mock('../services/haircutService', () => ({

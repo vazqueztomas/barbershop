@@ -24,6 +24,7 @@ interface DailyStats {
   dayName: string;
   revenue: number;
   count: number;
+  tip: number;
   avgPrice: number;
 }
 
@@ -228,6 +229,7 @@ export function Statistics() {
         dayName: getDayName(dateStr),
         revenue: 0,
         count: 0,
+        tip: 0,
         avgPrice: 0,
       });
       current.setDate(current.getDate() + 1);
@@ -245,6 +247,7 @@ export function Statistics() {
         }
         existing.count += haircutCount;
         existing.revenue += h.price;
+        existing.tip += h.tip || 0;
         existing.avgPrice = existing.count > 0 ? existing.revenue / existing.count : 0;
       }
     });
@@ -285,6 +288,11 @@ export function Statistics() {
 
   const totalRevenue = useMemo(
     () => filteredHaircuts.reduce((sum, h) => sum + h.price, 0),
+    [filteredHaircuts]
+  );
+
+  const totalTip = useMemo(
+    () => filteredHaircuts.reduce((sum, h) => sum + (h.tip || 0), 0),
     [filteredHaircuts]
   );
 
@@ -330,10 +338,14 @@ export function Statistics() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-8 mb-8">
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
           <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">Total Ingresos</span>
           <span className="block text-2xl font-bold text-gray-900 mt-1">{formatCurrency(totalRevenue)}</span>
+        </div>
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+          <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">Propinas</span>
+          <span className="block text-2xl font-bold text-green-600 mt-1">{formatCurrency(totalTip)}</span>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
           <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">Total Cortes</span>
@@ -345,7 +357,7 @@ export function Statistics() {
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
           <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">Servicio Popular</span>
-          <span className="block text-2xl font-bold text-gray-900 mt-1">{topService?.name || '-'}</span>
+          <span className="block text-xl font-bold text-gray-900 mt-1">{topService?.name || '-'}</span>
           <span className="text-sm text-gray-500">{topService?.count || 0} cortes</span>
         </div>
       </div>
@@ -371,6 +383,25 @@ export function Statistics() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Propinas por Dia</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={dailyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" tickFormatter={(value) => value.slice(5)} />
+              <YAxis tickFormatter={(value) => `$${Number(value) / 1000}k`} />
+              <Tooltip labelFormatter={(value) => value} />
+              <Area
+                type="monotone"
+                dataKey="tip"
+                stroke="#10B981"
+                fill="#10B981"
+                fillOpacity={0.3}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
           <h3 className="text-base font-semibold text-gray-900 mb-4">Cantidad de Cortes por Dia</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={dailyStats}>
@@ -380,27 +411,6 @@ export function Statistics() {
               <Tooltip labelFormatter={(value) => value} />
               <Bar dataKey="count" fill="#82ca9d" name="Cortes" />
             </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Distribucion por Servicio</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={serviceStats}
-                dataKey="count"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-              >
-                {serviceStats.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
           </ResponsiveContainer>
         </div>
 
@@ -427,6 +437,55 @@ export function Statistics() {
                 dataKey="revenue"
                 stroke="#00C49F"
                 name="Ingresos"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Distribucion por Servicio</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={serviceStats}
+                dataKey="count"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+              >
+                {serviceStats.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Propinas vs Ingresos</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={dailyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" tickFormatter={(value) => value.slice(5)} />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
+              <Tooltip labelFormatter={(value) => value} />
+              <Legend />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="revenue"
+                stroke="#8884d8"
+                name="Ingresos"
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="tip"
+                stroke="#10B981"
+                name="Propinas"
               />
             </LineChart>
           </ResponsiveContainer>

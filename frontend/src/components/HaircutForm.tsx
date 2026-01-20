@@ -27,6 +27,7 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
   const [clientName, setClientName] = useState(initialData?.clientName || '');
   const [date, setDate] = useState(initialData?.date || today);
   const [time, setTime] = useState(initialData?.time || '');
+  const [tip, setTip] = useState<number>(initialData?.tip || 0);
   const [entries, setEntries] = useState<HaircutEntry[]>([
     { id: crypto.randomUUID(), serviceName: '', count: 0, price: 0 }
   ]);
@@ -126,15 +127,16 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
         price: entry.price,
         date,
         time: time || undefined,
-        count: entry.count
+        count: entry.count,
+        tip: entry.count > 0 ? tip : 0
       };
       onSubmit(haircutData);
     }
   };
 
   const totalRevenue = useMemo(() =>
-    entries.reduce((sum, e) => sum + e.price, 0),
-    [entries]
+    entries.reduce((sum, e) => sum + e.price, 0) + tip,
+    [entries, tip]
   );
 
   const totalCount = useMemo(() =>
@@ -175,7 +177,7 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
         <div>
           <label htmlFor="clientName" className="block text-sm font-medium text-gray-700 mb-2">
             Cliente
@@ -214,6 +216,20 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
             value={time}
             onChange={(e) => setTime(e.target.value)}
             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          />
+        </div>
+        <div>
+          <label htmlFor="tip" className="block text-sm font-medium text-gray-700 mb-2">
+            Propina (opcional)
+          </label>
+          <input
+            type="number"
+            id="tip"
+            value={tip || ''}
+            onChange={(e) => setTip(parseInt(e.target.value) || 0)}
+            placeholder="0"
+            min="0"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
           />
         </div>
       </div>
@@ -349,12 +365,31 @@ export function HaircutForm({ onSubmit, initialData, onCancel }: HaircutFormProp
       </div>
 
       <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-gray-100">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">Total:</span>
-          <span className="text-xl font-bold text-gray-900">
-            {formatCurrency(totalRevenue)}
-          </span>
-          <span className="text-sm text-gray-400">({totalCount} corte{totalCount !== 1 ? 's' : ''})</span>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Cortes:</span>
+            <span className="text-lg font-semibold text-gray-900">{totalCount}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Servicios:</span>
+            <span className="text-lg font-semibold text-gray-900">
+              {formatCurrency(entries.reduce((sum, e) => sum + e.price, 0))}
+            </span>
+          </div>
+          {tip > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-lg">
+              <span className="text-sm text-green-700">Propina:</span>
+              <span className="text-lg font-semibold text-green-700">
+                {formatCurrency(tip)}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-900 rounded-lg">
+            <span className="text-sm text-gray-300">Total:</span>
+            <span className="text-xl font-bold text-white">
+              {formatCurrency(totalRevenue)}
+            </span>
+          </div>
         </div>
         <div className="flex-1"></div>
         <div className="flex gap-3">

@@ -169,7 +169,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-10">
         <div className="bg-gray-900 text-white rounded-2xl p-6 shadow-lg shadow-gray-900/10">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Hoy</p>
           <p className="text-4xl font-bold">{summary?.count || 0}</p>
@@ -177,8 +177,15 @@ export function Dashboard() {
         </div>
         <div className="bg-gray-800 text-white rounded-2xl p-6 shadow-lg">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Recaudado</p>
-          <p className="text-2xl font-bold">{formatCurrency(summary?.total || 0)}</p>
-          <p className="text-sm text-gray-400 mt-1">promedio: {formatCurrency(avgTicket)}</p>
+          <p className="text-2xl font-bold">
+            {formatCurrency((summary?.total || 0) + (summary?.tip || 0))}
+          </p>
+          <p className="text-sm text-gray-400 mt-1">
+            servicio: {formatCurrency(summary?.total || 0)}
+            {(summary?.tip || 0) > 0 && (
+              <span className="text-green-400"> + prop: {formatCurrency(summary?.tip || 0)}</span>
+            )}
+          </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total</p>
@@ -280,7 +287,8 @@ export function Dashboard() {
                   price: editingHaircut.price,
                   date: editingHaircut.date,
                   time: editingHaircut.time,
-                  count: editingHaircut.count
+                  count: editingHaircut.count,
+                  tip: editingHaircut.tip
                 } : undefined}
                 onCancel={handleCancel}
               />

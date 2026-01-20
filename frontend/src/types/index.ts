@@ -6,6 +6,7 @@ export interface Haircut {
   date: string;
   time?: string;
   count: number;
+  tip: number;
 }
 
 export interface HaircutCreate {
@@ -15,6 +16,7 @@ export interface HaircutCreate {
   date: string;
   time?: string;
   count: number;
+  tip: number;
 }
 
 export interface ServicePrice {
@@ -26,6 +28,7 @@ export interface DailySummary {
   date: string;
   count: number;
   total: number;
+  tip: number;
 }
 
 export interface DailyHistoryItem {

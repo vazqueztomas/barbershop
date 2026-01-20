@@ -122,6 +122,7 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
               price: parsePrice(corte),
               date: parseDate(fecha),
               count: 0,
+              tip: 0,
             };
           }).filter(item => item.date && item.price > 0);
 
@@ -153,6 +154,7 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
             price: parsePrice(row['CORTE']),
             date: parseDate(row['FECHA']),
             count: 0,
+            tip: 0,
           }))
           .filter(item => item.price > 0);
 
