@@ -48,7 +48,7 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="bg-gray-50/80 backdrop-blur-sm">
-            <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Hora</th>
+            <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Fecha</th>
             <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Cliente</th>
             <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Servicio</th>
             <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Precio</th>
@@ -63,7 +63,7 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <td className="px-4 py-3 text-gray-700 font-medium whitespace-nowrap">
-                {formatTime(haircut.date, haircut.time)}
+                {new Date(haircut.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </td>
               <td className="px-4 py-3">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
