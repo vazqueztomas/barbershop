@@ -45,7 +45,8 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
 
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
-      <table className="w-full border-collapse text-sm">
+      <div className="max-h-[calc(100vh-420px)] overflow-y-auto border border-gray-100 rounded-lg">
+        <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="bg-gray-50/80 backdrop-blur-sm">
             <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Fecha</th>
@@ -113,6 +114,7 @@ export function HaircutList({ haircuts, onEdit, onDelete, onEditPrice }: Haircut
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
