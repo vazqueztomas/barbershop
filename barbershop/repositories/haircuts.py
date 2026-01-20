@@ -10,7 +10,7 @@ class HaircutRepository:
         self.connection = connection
 
     def get_all(self) -> list[Haircut]:
-        cuts = self.connection.execute("SELECT id, client_name, service_name, price, date, time FROM haircuts ORDER BY date DESC, rowid DESC").fetchall()
+        cuts = self.connection.execute("SELECT id, client_name, service_name, price, date, time, count FROM haircuts ORDER BY date DESC, rowid DESC").fetchall()
         return [
             Haircut(
                 id=UUID(cut[0]),
@@ -18,14 +18,15 @@ class HaircutRepository:
                 serviceName=cut[2],
                 price=cut[3],
                 date=date.fromisoformat(cut[4]) if cut[4] else date.today(),
-                time=cut[5]
+                time=cut[5],
+                count=cut[6] if cut[6] else 0
             )
             for cut in cuts
         ]
 
     def get_by_id(self, id: UUID) -> Haircut:
         cursor = self.connection.execute(
-            "SELECT id, client_name, service_name, price, date, time FROM haircuts WHERE id = ?;", (str(id),)
+            "SELECT id, client_name, service_name, price, date, time, count FROM haircuts WHERE id = ?;", (str(id),)
         )
         cut = cursor.fetchone()
         if cut:
@@ -35,13 +36,14 @@ class HaircutRepository:
                 serviceName=cut[2],
                 price=cut[3],
                 date=date.fromisoformat(cut[4]) if cut[4] else date.today(),
-                time=cut[5]
+                time=cut[5],
+                count=cut[6] if cut[6] else 0
             )
         raise NotFoundResponse(status_code=404, detail="Haircut not found")
 
     def get_by_date(self, cutoff_date: date) -> list[Haircut]:
         cursor = self.connection.execute(
-            "SELECT id, client_name, service_name, price, date, time FROM haircuts WHERE date = ? ORDER BY rowid DESC;", (cutoff_date.isoformat(),)
+            "SELECT id, client_name, service_name, price, date, time, count FROM haircuts WHERE date = ? ORDER BY rowid DESC;", (cutoff_date.isoformat(),)
         )
         cuts = cursor.fetchall()
         return [
@@ -51,7 +53,8 @@ class HaircutRepository:
                 serviceName=cut[2],
                 price=cut[3],
                 date=date.fromisoformat(cut[4]) if cut[4] else date.today(),
-                time=cut[5]
+                time=cut[5],
+                count=cut[6] if cut[6] else 0
             )
             for cut in cuts
         ]
@@ -66,7 +69,6 @@ class HaircutRepository:
     def create(self, item: HaircutCreate) -> Haircut:
         item_date = item.date
         if isinstance(item_date, str):
-            # Convertir DD/MM/YYYY a YYYY-MM-DD
             parts = item_date.split('/')
             if len(parts) == 3:
                 item_date = date(int(parts[2]), int(parts[1]), int(parts[0]))
@@ -79,19 +81,20 @@ class HaircutRepository:
             serviceName=item.serviceName,
             price=item.price,
             date=item_date,
-            time=item.time
+            time=item.time,
+            count=item.count
         )
         self.connection.execute(
-            "INSERT INTO haircuts (id, client_name, service_name, price, date, time) VALUES (?, ?, ?, ?, ?, ?);",
-            (str(haircut.id), haircut.clientName, haircut.serviceName, haircut.price, haircut.date.isoformat(), haircut.time),
+            "INSERT INTO haircuts (id, client_name, service_name, price, date, time, count) VALUES (?, ?, ?, ?, ?, ?, ?);",
+            (str(haircut.id), haircut.clientName, haircut.serviceName, haircut.price, haircut.date.isoformat(), haircut.time, haircut.count),
         )
         self.connection.commit()
         return haircut
 
     def update(self, item: Haircut) -> Haircut:
         self.connection.execute(
-            "UPDATE haircuts SET client_name = ?, service_name = ?, price = ?, date = ?, time = ? WHERE id = ?",
-            (item.clientName, item.serviceName, item.price, item.date.isoformat(), item.time, str(item.id)),
+            "UPDATE haircuts SET client_name = ?, service_name = ?, price = ?, date = ?, time = ?, count = ? WHERE id = ?",
+            (item.clientName, item.serviceName, item.price, item.date.isoformat(), item.time, item.count, str(item.id)),
         )
         self.connection.commit()
         return item

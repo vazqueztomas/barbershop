@@ -5,12 +5,23 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class ServicePrice(BaseModel):
+    serviceName: str
+    basePrice: int
+
+
+class ServicePriceCreate(BaseModel):
+    serviceName: str
+    basePrice: int
+
+
 class HaircutCreate(BaseModel):
     clientName: str
     serviceName: str
     price: float
     date: str
     time: Optional[str] = None
+    count: int = 0
 
 
 class Haircut(BaseModel):
@@ -20,6 +31,7 @@ class Haircut(BaseModel):
     price: float
     date: date_type
     time: Optional[str] = None
+    count: int = 0
 
     class Config:
         from_attributes = True

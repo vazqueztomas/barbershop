@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from barbershop.database import create_connection
-from barbershop.models import Haircut, HaircutCreate
+from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate
 from barbershop.repositories import HaircutRepository
 
 
@@ -53,6 +53,7 @@ def create_haircut(haircut: HaircutCreate, conn=Depends(get_db)) -> Haircut:
     print(f"  price: {haircut.price} (type: {type(haircut.price)})")
     print(f"  date: {haircut.date} (type: {type(haircut.date)})")
     print(f"  time: {haircut.time} (type: {type(haircut.time) if haircut.time is not None else 'None'})")
+    print(f"  count: {haircut.count} (type: {type(haircut.count)})")
     print("=" * 60)
     try:
         repo = HaircutRepository(conn)
@@ -161,7 +162,7 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
             if date_key not in by_date:
                 by_date[date_key] = {"total": 0, "count": 0, "clients": []}
             by_date[date_key]["total"] += haircut.price
-            by_date[date_key]["count"] += 1
+            by_date[date_key]["count"] += haircut.count
             by_date[date_key]["clients"].append(haircut.clientName)
         
         # Convertir a lista ordenada por fecha descendente
@@ -199,10 +200,75 @@ def get_today_summary(conn=Depends(get_db)) -> dict:
         repo = HaircutRepository(conn)
         today_haircuts = repo.get_by_date(date_type.today())
         total = sum(h.price for h in today_haircuts)
+        count = sum(h.count for h in today_haircuts)
         return {
             "date": date_type.today().isoformat(),
-            "count": len(today_haircuts),
+            "count": count,
             "total": total
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting summary: {str(e)}")
+
+
+# Service Prices Endpoints
+@router.get("/services/prices")
+def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
+    cursor = conn.execute("SELECT service_name, base_price FROM service_prices ORDER BY service_name")
+    rows = cursor.fetchall()
+    return [ServicePrice(serviceName=row[0], basePrice=row[1]) for row in rows]
+
+
+@router.put("/services/prices/{service_name}")
+def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) -> ServicePrice:
+    base_price = body.get("basePrice")
+    if base_price is None:
+        raise HTTPException(status_code=400, detail="basePrice is required")
+    
+    cursor = conn.execute(
+        "UPDATE service_prices SET base_price = ? WHERE service_name = ?",
+        (base_price, service_name)
+    )
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Service not found")
+    conn.commit()
+    
+    cursor = conn.execute(
+        "SELECT service_name, base_price FROM service_prices WHERE service_name = ?",
+        (service_name,)
+    )
+    row = cursor.fetchone()
+    return ServicePrice(serviceName=row[0], basePrice=row[1])
+
+
+@router.post("/services/prices")
+def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)) -> ServicePrice:
+    cursor = conn.execute(
+        "INSERT INTO service_prices (id, service_name, base_price) VALUES (?, ?, ?)",
+        (str(uuid4()), service_price.serviceName, service_price.basePrice)
+    )
+    conn.commit()
+    return ServicePrice(serviceName=service_price.serviceName, basePrice=service_price.basePrice)
+
+
+@router.delete("/services/prices/{service_name}")
+def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
+    cursor = conn.execute(
+        "DELETE FROM service_prices WHERE service_name = ?",
+        (service_name,)
+    )
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Service not found")
+    conn.commit()
+    return {"message": f"Service {service_name} deleted"}
+
+
+@router.get("/services/price/{service_name}")
+def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
+    cursor = conn.execute(
+        "SELECT service_name, base_price FROM service_prices WHERE service_name = ?",
+        (service_name,)
+    )
+    row = cursor.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Service not found")
+    return ServicePrice(serviceName=row[0], basePrice=row[1])

@@ -4,6 +4,15 @@ import loguru
 
 logger = loguru.logger
 
+DEFAULT_SERVICE_PRICES = [
+    ("Degradado", 9000),
+    ("Corte", 7000),
+    ("Barba", 3000),
+    ("Corte+Barba", 10000),
+    ("Claritos", 5000),
+    ("Otros", 8000),
+]
+
 
 def create_connection(db_file):
     """Create a database connection to the SQLite database specified by db_file."""
@@ -18,7 +27,8 @@ def create_connection(db_file):
                 service_name TEXT NOT NULL,
                 price REAL NOT NULL,
                 date TEXT DEFAULT CURRENT_DATE,
-                time TEXT
+                time TEXT,
+                count INTEGER DEFAULT 0
             )
         """)
         cursor.execute("PRAGMA table_info(haircuts)")
@@ -35,6 +45,29 @@ def create_connection(db_file):
             
         if "time" not in columns:
             cursor.execute("ALTER TABLE haircuts ADD COLUMN time TEXT")
+
+        if "count" not in columns:
+            cursor.execute("ALTER TABLE haircuts ADD COLUMN count INTEGER DEFAULT 0")
+        
+        # Create service_prices table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS service_prices (
+                id TEXT PRIMARY KEY,
+                service_name TEXT UNIQUE NOT NULL,
+                base_price INTEGER NOT NULL
+            )
+        """)
+        
+        # Populate default service prices if table is empty
+        cursor.execute("SELECT COUNT(*) FROM service_prices")
+        if cursor.fetchone()[0] == 0:
+            from uuid import uuid4
+            for service_name, base_price in DEFAULT_SERVICE_PRICES:
+                cursor.execute(
+                    "INSERT INTO service_prices (id, service_name, base_price) VALUES (?, ?, ?)",
+                    (str(uuid4()), service_name, base_price)
+                )
+        
         conn.commit()
         logger.info(f"Connection to {db_file} established.")
     except sqlite3.Error as e:
