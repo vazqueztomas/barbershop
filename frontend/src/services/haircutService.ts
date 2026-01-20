@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DailySummary, DailyHistory, Haircut, HaircutCreate } from '../types';
+import { DailySummary, DailyHistory, Haircut, HaircutCreate, ServicePrice } from '../types';
 import { API_URL } from '../config';
 
 const api = axios.create({
@@ -56,6 +56,31 @@ export const haircutService = {
 
   getByDate: async (date: string): Promise<Haircut[]> => {
     const response = await api.get<Haircut[]>(`/history/date/${date}`);
+    return response.data;
+  },
+
+  getServicePrices: async (): Promise<ServicePrice[]> => {
+    const response = await api.get<ServicePrice[]>('/services/prices');
+    return response.data;
+  },
+
+  getServicePrice: async (serviceName: string): Promise<ServicePrice> => {
+    const response = await api.get<ServicePrice>(`/services/price/${encodeURIComponent(serviceName)}`);
+    return response.data;
+  },
+
+  updateServicePrice: async (serviceName: string, basePrice: number): Promise<ServicePrice> => {
+    const response = await api.put<ServicePrice>(`/services/prices/${encodeURIComponent(serviceName)}`, { basePrice });
+    return response.data;
+  },
+
+  createServicePrice: async (serviceName: string, basePrice: number): Promise<ServicePrice> => {
+    const response = await api.post<ServicePrice>('/services/prices', { serviceName, basePrice });
+    return response.data;
+  },
+
+  deleteServicePrice: async (serviceName: string): Promise<{ message: string }> => {
+    const response = await api.delete<{ message: string }>(`/services/prices/${encodeURIComponent(serviceName)}`);
     return response.data;
   },
 };

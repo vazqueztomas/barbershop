@@ -5,6 +5,7 @@ export interface Haircut {
   price: number;
   date: string;
   time?: string;
+  count: number;
 }
 
 export interface HaircutCreate {
@@ -13,6 +14,12 @@ export interface HaircutCreate {
   price: number;
   date: string;
   time?: string;
+  count: number;
+}
+
+export interface ServicePrice {
+  serviceName: string;
+  basePrice: number;
 }
 
 export interface DailySummary {

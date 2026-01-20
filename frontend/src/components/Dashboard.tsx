@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Haircut, HaircutCreate } from '../types';
 import { HaircutForm } from './HaircutForm';
 import { HaircutList } from './HaircutList';
@@ -7,12 +7,13 @@ import { DateSearchBar } from './DateSearchBar';
 import { PriceEditor } from './PriceEditor';
 import { Statistics } from './Statistics';
 import { ExcelImporter } from './ExcelImporter';
+import { ServicePricesConfig } from './ServicePricesConfig';
 import { useHaircuts, useDailySummary } from '../hooks/useHaircuts';
 import { useDateSearch } from '../hooks/useDateSearch';
 import { useGlobalStats } from '../hooks/useGlobalStats';
 import { haircutService } from '../services/haircutService';
 
-export type TabType = 'sales' | 'history' | 'import' | 'stats';
+export type TabType = 'sales' | 'history' | 'import' | 'stats' | 'config';
 
 export function Dashboard() {
   const { haircuts, loading, error, addHaircut, updateHaircut, updatePrice, deleteHaircut, refetch } =
@@ -34,6 +35,14 @@ export function Dashboard() {
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>('');
   const [activeTab, setActiveTab] = useState<TabType>('sales');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (activeTab !== 'sales') {
+      setShowForm(false);
+      setEditingHaircut(null);
+    }
+  }, [activeTab]);
 
   const handleCreate = () => {
     setEditingHaircut(null);
@@ -46,19 +55,27 @@ export function Dashboard() {
   };
 
   const handleSubmit = async (haircutData: HaircutCreate) => {
+    setIsSubmitting(true);
     try {
       if (editingHaircut) {
         await updateHaircut({ ...haircutData, id: editingHaircut.id });
+        setShowForm(false);
+        setEditingHaircut(null);
       } else {
         await addHaircut(haircutData);
       }
-      setShowForm(false);
-      setEditingHaircut(null);
       refetchSummary();
       refetchGlobalStats();
     } catch (err) {
       console.error('Error saving haircut:', err);
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingHaircut(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -110,11 +127,6 @@ export function Dashboard() {
     } catch (err) {
       console.error("Error deleting today's haircuts:", err);
     }
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingHaircut(null);
   };
 
   const avgTicket = summary?.count && summary.count > 0 
@@ -219,6 +231,16 @@ export function Dashboard() {
               >
                 Estadísticas
               </button>
+              <button
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'config'
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                onClick={() => setActiveTab('config')}
+              >
+                Configuración
+              </button>
             </div>
             {activeTab === 'sales' && (
               <button
@@ -257,7 +279,8 @@ export function Dashboard() {
                   serviceName: editingHaircut.serviceName,
                   price: editingHaircut.price,
                   date: editingHaircut.date,
-                  time: editingHaircut.time
+                  time: editingHaircut.time,
+                  count: editingHaircut.count
                 } : undefined}
                 onCancel={handleCancel}
               />
@@ -325,6 +348,13 @@ export function Dashboard() {
 
           {activeTab === 'stats' && (
             <Statistics />
+          )}
+
+          {activeTab === 'config' && (
+            <ServicePricesConfig onRefresh={() => {
+              refetchSummary();
+              refetch();
+            }} />
           )}
         </div>
       </div>

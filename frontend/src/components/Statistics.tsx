@@ -16,7 +16,7 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import { Haircut } from '../types';
+import { Haircut, ServicePrice } from '../types';
 import { haircutService } from '../services/haircutService';
 
 interface DailyStats {
@@ -96,22 +96,34 @@ const DATE_RANGES: { key: DateRange; label: string }[] = [
 
 export function Statistics() {
   const [haircuts, setHaircuts] = useState<Haircut[]>([]);
+  const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRange, setSelectedRange] = useState<DateRange>('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [basePrice, setBasePrice] = useState<number>(9000);
 
   useEffect(() => {
-    const savedPrice = localStorage.getItem('barbershop_basePrice');
-    if (savedPrice) {
-      setBasePrice(parseInt(savedPrice, 10));
-    }
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('barbershop_basePrice', basePrice.toString());
-  }, [basePrice]);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [haircutsData, pricesData] = await Promise.all([
+        haircutService.getAll(),
+        haircutService.getServicePrices()
+      ]);
+      setHaircuts(haircutsData);
+      setServicePrices(pricesData);
+      const range = calculateDateRange(selectedRange, haircutsData);
+      setStartDate(range.start);
+      setEndDate(range.end);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getDateFromString = (dateStr: string): Date => {
     const parts = dateStr.split('/');
@@ -170,20 +182,6 @@ export function Statistics() {
     };
   };
 
-  const fetchData = async () => {
-    try {
-      const data = await haircutService.getAll();
-      setHaircuts(data);
-      const range = calculateDateRange(selectedRange, data);
-      setStartDate(range.start);
-      setEndDate(range.end);
-    } catch (err) {
-      console.error('Error fetching haircuts:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -239,7 +237,12 @@ export function Statistics() {
       const dateStr = formatDateForComparison(h.date);
       const existing = stats.get(dateStr);
       if (existing) {
-        const haircutCount = Math.round(h.price / basePrice);
+        let haircutCount = h.count;
+        if (haircutCount === 0) {
+          const servicePrice = servicePrices.find(sp => sp.serviceName === h.serviceName);
+          const basePrice = servicePrice?.basePrice || 8000;
+          haircutCount = Math.round(h.price / basePrice);
+        }
         existing.count += haircutCount;
         existing.revenue += h.price;
         existing.avgPrice = existing.count > 0 ? existing.revenue / existing.count : 0;
@@ -247,7 +250,14 @@ export function Statistics() {
     });
     
     return Array.from(stats.values());
-  }, [filteredHaircuts, startDate, endDate, basePrice]);
+  }, [filteredHaircuts, startDate, endDate, servicePrices]);
+
+  const getLegacyCount = (haircut: Haircut): number => {
+    if (haircut.count > 0) return haircut.count;
+    const servicePrice = servicePrices.find(sp => sp.serviceName === haircut.serviceName);
+    const basePrice = servicePrice?.basePrice || 8000;
+    return Math.round(haircut.price / basePrice);
+  };
 
   const serviceStats = useMemo(() => {
     const serviceMap = new Map<string, { count: number; revenue: number }>();
@@ -255,13 +265,14 @@ export function Statistics() {
     filteredHaircuts.forEach((haircut) => {
       const service = haircut.serviceName;
       const existing = serviceMap.get(service) || { count: 0, revenue: 0 };
+      const haircutCount = getLegacyCount(haircut);
       serviceMap.set(service, {
-        count: existing.count + 1,
+        count: existing.count + haircutCount,
         revenue: existing.revenue + haircut.price,
       });
     });
 
-    const totalCount = filteredHaircuts.length;
+    const totalCount = filteredHaircuts.reduce((sum, h) => sum + getLegacyCount(h), 0);
     const stats = Array.from(serviceMap.entries()).map(([name, data]) => ({
       name,
       count: data.count,
@@ -270,7 +281,7 @@ export function Statistics() {
     }));
 
     return stats.sort((a: { count: number }, b: { count: number }) => b.count - a.count);
-  }, [filteredHaircuts]);
+  }, [filteredHaircuts, servicePrices]);
 
   const totalRevenue = useMemo(
     () => filteredHaircuts.reduce((sum, h) => sum + h.price, 0),
@@ -290,30 +301,6 @@ export function Statistics() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Configuración</h2>
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Precio base (para calcular cortes)</label>
-            <input
-              type="number"
-              value={basePrice}
-              onChange={(e) => setBasePrice(parseInt(e.target.value, 10) || 0)}
-              className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 w-32 text-sm focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
-            />
-          </div>
-          <button
-            onClick={() => {
-              setLoading(true);
-              fetchData();
-            }}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors cursor-pointer"
-          >
-            🔄 Refrescar datos
-          </button>
-        </div>
-      </div>
-
       <div className="flex flex-wrap gap-2 py-3 mb-6">
         {DATE_RANGES.map((range) => (
           <button
@@ -328,8 +315,18 @@ export function Statistics() {
             {range.label}
           </button>
         ))}
-        <span className="ml-auto text-gray-500 text-sm self-center">
-          ({filteredHaircuts.length} registros)
+        <span className="ml-auto text-gray-500 text-sm self-center flex items-center gap-2">
+          <span>({filteredHaircuts.length} registros)</span>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchData();
+            }}
+            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+            title="Refrescar datos"
+          >
+            🔄
+          </button>
         </span>
       </div>
 

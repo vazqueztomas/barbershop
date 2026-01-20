@@ -1,17 +1,37 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { HaircutCreate } from '../types';
+import { HaircutCreate, ServicePrice } from '../types';
 import { haircutService } from '../services/haircutService';
 
 interface ExcelImporterProps {
   onImportComplete: () => void;
 }
 
+interface PreviewItem extends HaircutCreate {
+  id: string;
+  serviceIndex: number;
+}
+
 export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
-  const [preview, setPreview] = useState<HaircutCreate[]>([]);
+  const [preview, setPreview] = useState<PreviewItem[]>([]);
+  const [services, setServices] = useState<ServicePrice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [bulkServiceIndex, setBulkServiceIndex] = useState<number>(0);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const data = await haircutService.getServicePrices();
+      setServices(data);
+    } catch (err) {
+      console.error('Error fetching services:', err);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-AR', {
@@ -55,6 +75,13 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
     return dateStr;
   };
 
+  const calculateCount = (price: number, service: ServicePrice): number => {
+    if (service.basePrice > 0) {
+      return Math.round(price / service.basePrice);
+    }
+    return 0;
+  };
+
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -82,16 +109,19 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
             return;
           }
 
-          const parsedData: HaircutCreate[] = lines.slice(1).map((line, idx) => {
+          const parsedData: PreviewItem[] = lines.slice(1).map((line, idx) => {
             const cols = line.split(',').map(c => c.trim().replace(/\r/g, ''));
             console.log(`Line ${idx}:`, cols);
             const fecha = cols[fechaIndex] || '';
             const corte = cols[corteIndex] || '';
             return {
+              id: `temp-${idx}`,
               clientName: 'Sin nombre',
-              serviceName: 'Corte',
+              serviceName: services[0]?.serviceName || '',
+              serviceIndex: 0,
               price: parsePrice(corte),
               date: parseDate(fecha),
+              count: 0,
             };
           }).filter(item => item.date && item.price > 0);
 
@@ -113,13 +143,16 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
 
         console.log('Raw data:', jsonData.slice(0, 3));
 
-        const parsedData: HaircutCreate[] = jsonData
+        const parsedData: PreviewItem[] = jsonData
           .filter((row) => row['FECHA'] && row['CORTE'])
-          .map((row) => ({
+          .map((row, idx) => ({
+            id: `temp-${idx}`,
             clientName: 'Sin nombre',
-            serviceName: 'Corte',
+            serviceName: services[0]?.serviceName || '',
+            serviceIndex: 0,
             price: parsePrice(row['CORTE']),
             date: parseDate(row['FECHA']),
+            count: 0,
           }))
           .filter(item => item.price > 0);
 
@@ -136,7 +169,34 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
       }
     };
     reader.readAsText(file);
-  }, []);
+  }, [services]);
+
+  const updateItemService = (index: number, serviceIndex: number) => {
+    setPreview(prev => prev.map((item, i) => {
+      if (i === index) {
+        const service = services[serviceIndex];
+        return {
+          ...item,
+          serviceIndex,
+          serviceName: service.serviceName,
+          count: calculateCount(item.price, service),
+        };
+      }
+      return item;
+    }));
+  };
+
+  const applyBulkService = () => {
+    setPreview(prev => prev.map(item => {
+      const service = services[bulkServiceIndex];
+      return {
+        ...item,
+        serviceIndex: bulkServiceIndex,
+        serviceName: service.serviceName,
+        count: calculateCount(item.price, service),
+      };
+    }));
+  };
 
   const handleImport = async () => {
     if (preview.length === 0) return;
@@ -148,7 +208,8 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
       for (let i = 0; i < preview.length; i++) {
         const item = preview[i];
         console.log(`Importing item ${i + 1}:`, JSON.stringify(item, null, 2));
-        const result = await haircutService.create(item);
+        const { id, serviceIndex, ...haircutData } = item;
+        const result = await haircutService.create(haircutData);
         console.log(`Item ${i + 1} created successfully:`, result);
       }
       console.log('All items imported successfully!');
@@ -224,6 +285,39 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
 
         {preview.length > 0 && (
           <div className="mt-6">
+            <div className="mb-4 p-3 bg-gray-50 border-l-4 border-gray-400 rounded-r-lg">
+              <p className="text-sm text-gray-600 italic">
+                ℹ️ Los cortes se calculan con los precios base actuales al momento de importar.
+              </p>
+            </div>
+
+            {services.length > 0 && (
+              <div className="flex flex-wrap gap-4 items-end mb-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    Asignar a todos
+                  </label>
+                  <select
+                    value={bulkServiceIndex}
+                    onChange={(e) => setBulkServiceIndex(parseInt(e.target.value, 10))}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                  >
+                    {services.map((service, index) => (
+                      <option key={service.serviceName} value={index}>
+                        {service.serviceName} ({formatCurrency(service.basePrice)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  onClick={applyBulkService}
+                  className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                >
+                  Aplicar a todos
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,25 +328,53 @@ export function ExcelImporter({ onImportComplete }: ExcelImporterProps) {
               </h3>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+            <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm max-h-96 overflow-y-auto">
               <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Fecha</th>
-                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Monto</th>
+                <thead className="bg-gray-50 sticky top-0">
+                  <tr>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Fecha
+                    </th>
+                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Total
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Servicio
+                    </th>
+                    <th className="text-right px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Cortes
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {preview.slice(0, 10).map((item, index) => (
-                    <tr key={index} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                  {preview.slice(0, 50).map((item, index) => (
+                    <tr key={item.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-2.5 text-gray-700">{item.date}</td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{formatCurrency(item.price)}</td>
+                      <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
+                        {formatCurrency(item.price)}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <select
+                          value={item.serviceIndex}
+                          onChange={(e) => updateItemService(index, parseInt(e.target.value, 10))}
+                          className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                        >
+                          {services.map((service, sIndex) => (
+                            <option key={service.serviceName} value={sIndex}>
+                              {service.serviceName}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-2.5 text-right font-medium text-gray-900">
+                        {item.count}
+                      </td>
                     </tr>
                   ))}
-                  {preview.length > 10 && (
+                  {preview.length > 50 && (
                     <tr>
-                      <td colSpan={2} className="px-4 py-2.5 text-center text-gray-500 text-xs">
-                        ... y {preview.length - 10} más
+                      <td colSpan={4} className="px-4 py-3 text-center text-gray-500 text-xs">
+                        ... y {preview.length - 50} más
                       </td>
                     </tr>
                   )}
