@@ -1,4 +1,10 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 import loguru
 
@@ -14,12 +20,17 @@ DEFAULT_SERVICE_PRICES = [
 ]
 
 
-def create_connection(db_file):
-    """Create a database connection to the SQLite database specified by db_file."""
+def create_connection(db_url=None):
+    """Create a database connection to PostgreSQL."""
     conn = None
     try:
-        conn = sqlite3.connect(db_file, check_same_thread=False)
+        import os
+        if db_url is None:
+            db_url = os.environ.get("DATABASE_URL")
+        
+        conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
         cursor = conn.cursor()
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS haircuts (
                 id TEXT PRIMARY KEY,
@@ -32,12 +43,14 @@ def create_connection(db_file):
                 tip REAL DEFAULT 0
             )
         """)
-        cursor.execute("PRAGMA table_info(haircuts)")
-        columns = [col[1] for col in cursor.fetchall()]
         
-        # Migración para bases de datos antiguas
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'haircuts'
+        """)
+        columns = [row["column_name"] for row in cursor.fetchall()]
+        
         if "name" in columns and "client_name" not in columns:
-            # Renombrar columna name a service_name y agregar client_name
             cursor.execute("ALTER TABLE haircuts RENAME COLUMN name TO service_name")
             cursor.execute("ALTER TABLE haircuts ADD COLUMN client_name TEXT DEFAULT 'Cliente'")
         
@@ -53,7 +66,6 @@ def create_connection(db_file):
         if "tip" not in columns:
             cursor.execute("ALTER TABLE haircuts ADD COLUMN tip REAL DEFAULT 0")
         
-        # Create service_prices table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS service_prices (
                 id TEXT PRIMARY KEY,
@@ -62,18 +74,23 @@ def create_connection(db_file):
             )
         """)
         
-        # Populate default service prices if table is empty
         cursor.execute("SELECT COUNT(*) FROM service_prices")
-        if cursor.fetchone()[0] == 0:
+        result = cursor.fetchone()
+        if result is None or result["count"] == 0:
             from uuid import uuid4
             for service_name, base_price in DEFAULT_SERVICE_PRICES:
                 cursor.execute(
-                    "INSERT INTO service_prices (id, service_name, base_price) VALUES (?, ?, ?)",
+                    "INSERT INTO service_prices (id, service_name, base_price) VALUES (%s, %s, %s)",
                     (str(uuid4()), service_name, base_price)
                 )
         
         conn.commit()
-        logger.info(f"Connection to {db_file} established.")
-    except sqlite3.Error as e:
+        logger.info("Connection to PostgreSQL established.")
+        return conn
+    except psycopg2.Error as e:
         logger.error(f"Error connecting to database: {e}")
-    return conn
+        return None
+    except Exception as e:
+        import traceback
+        logger.error(f"Unexpected error: {e}\n{traceback.format_exc()}")
+        return None

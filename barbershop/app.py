@@ -1,4 +1,5 @@
 import loguru
+import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,5 +32,6 @@ app.include_router(haircuts_router)
 
 @app.get("/")
 def read_root():
-    create_connection("testing.db")
+    db_path = os.environ.get("DB_PATH", "/tmp/testing.db")
+    create_connection(db_path)
     return {"Barbershop API": "OK"}

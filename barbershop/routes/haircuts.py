@@ -1,3 +1,4 @@
+import os
 from datetime import date as date_type
 from uuid import UUID, uuid4
 from contextlib import contextmanager
@@ -10,24 +11,28 @@ from barbershop.database import create_connection
 from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate
 from barbershop.repositories import HaircutRepository
 
+DB_PATH = os.environ.get("DB_PATH", "/tmp/testing.db")
+
 
 @contextmanager
 def get_db_connection() -> Generator:
     """Context manager para obtener conexión a la base de datos."""
-    conn = create_connection("testing.db")
+    conn = create_connection(DB_PATH)
     try:
         yield conn
     finally:
-        pass
+        if conn:
+            conn.close()
 
 
 def get_db() -> Generator:
     """Dependency para obtener conexión a la base de datos."""
-    conn = create_connection("testing.db")
+    conn = create_connection(DB_PATH)
     try:
         yield conn
     finally:
-        pass
+        if conn:
+            conn.close()
 
 
 router = APIRouter(prefix="/haircuts")
@@ -35,16 +40,22 @@ router = APIRouter(prefix="/haircuts")
 
 @router.get("/")
 def get_haircuts(conn=Depends(get_db)) -> list[Haircut]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     return HaircutRepository(conn).get_all()
 
 
 @router.get("/{haircut_id}")
 def get_haircut(haircut_id: UUID, conn=Depends(get_db)) -> Haircut:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     return HaircutRepository(conn).get_by_id(haircut_id)
 
 
 @router.post("/create")
 def create_haircut(haircut: HaircutCreate, conn=Depends(get_db)) -> Haircut:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     print("=" * 60)
     print("=== REQUEST RECIBIDA EN /haircuts/create ===")
     print(f"haircut: {haircut}")
@@ -76,6 +87,8 @@ def debug_create_haircut(raw_body: dict, conn=Depends(get_db)) -> dict:
     Endpoint temporal para debuggear el create
     Acepta cualquier JSON y lo打印 sin validación
     """
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     print("=" * 60)
     print("=== DEBUG CREATE - RAW BODY ===")
     print(f"raw_body: {raw_body}")
@@ -102,6 +115,8 @@ def debug_create_haircut(raw_body: dict, conn=Depends(get_db)) -> dict:
 
 @router.put("/update")
 def update_haircut(haircut: Haircut, conn=Depends(get_db)) -> Haircut:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         repo = HaircutRepository(conn)
         return repo.update(haircut)
@@ -111,6 +126,8 @@ def update_haircut(haircut: Haircut, conn=Depends(get_db)) -> Haircut:
 
 @router.patch("/{haircut_id}/price")
 def update_haircut_price(haircut_id: UUID, body: dict, conn=Depends(get_db)) -> Haircut:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     repo = HaircutRepository(conn)
     new_price = body.get("price")
     if new_price is None:
@@ -123,6 +140,8 @@ def update_haircut_price(haircut_id: UUID, body: dict, conn=Depends(get_db)) -> 
 
 @router.delete("/{haircut_id}")
 def delete_haircut(haircut_id: UUID, conn=Depends(get_db)) -> dict:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     repo = HaircutRepository(conn)
     try:
         repo.get_by_id(haircut_id)
@@ -137,6 +156,8 @@ def delete_haircut(haircut_id: UUID, conn=Depends(get_db)) -> dict:
 
 @router.delete("/history/date/{cutoff_date}")
 def delete_haircuts_by_date(cutoff_date: str, conn=Depends(get_db)) -> dict:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         parsed_date = date_type.fromisoformat(cutoff_date)
     except ValueError:
@@ -151,6 +172,8 @@ def delete_haircuts_by_date(cutoff_date: str, conn=Depends(get_db)) -> dict:
 
 @router.get("/history/daily")
 def get_daily_history(conn=Depends(get_db)) -> list[dict]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         repo = HaircutRepository(conn)
         all_haircuts = repo.get_all()
@@ -186,6 +209,8 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
 
 @router.get("/history/date/{cutoff_date}")
 def get_haircuts_by_date(cutoff_date: str, conn=Depends(get_db)) -> list[Haircut]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         parsed_date = date_type.fromisoformat(cutoff_date)
     except ValueError:
@@ -198,6 +223,8 @@ def get_haircuts_by_date(cutoff_date: str, conn=Depends(get_db)) -> list[Haircut
 
 @router.get("/history/today")
 def get_today_summary(conn=Depends(get_db)) -> dict:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         repo = HaircutRepository(conn)
         today_haircuts = repo.get_by_date(date_type.today())
@@ -217,6 +244,8 @@ def get_today_summary(conn=Depends(get_db)) -> dict:
 # Service Prices Endpoints
 @router.get("/services/prices")
 def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     cursor = conn.execute("SELECT service_name, base_price FROM service_prices ORDER BY service_name")
     rows = cursor.fetchall()
     return [ServicePrice(serviceName=row[0], basePrice=row[1]) for row in rows]
@@ -224,6 +253,8 @@ def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
 
 @router.put("/services/prices/{service_name}")
 def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) -> ServicePrice:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     base_price = body.get("basePrice")
     if base_price is None:
         raise HTTPException(status_code=400, detail="basePrice is required")
@@ -246,6 +277,8 @@ def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) ->
 
 @router.post("/services/prices")
 def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)) -> ServicePrice:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     cursor = conn.execute(
         "INSERT INTO service_prices (id, service_name, base_price) VALUES (?, ?, ?)",
         (str(uuid4()), service_price.serviceName, service_price.basePrice)
@@ -256,6 +289,8 @@ def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)
 
 @router.delete("/services/prices/{service_name}")
 def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     cursor = conn.execute(
         "DELETE FROM service_prices WHERE service_name = ?",
         (service_name,)
@@ -268,6 +303,8 @@ def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
 
 @router.get("/services/price/{service_name}")
 def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
     cursor = conn.execute(
         "SELECT service_name, base_price FROM service_prices WHERE service_name = ?",
         (service_name,)
