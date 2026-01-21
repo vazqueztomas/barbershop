@@ -14,10 +14,7 @@ Una aplicación completa y moderna para la gestión de barberías, desarrollada 
 - **Edición de Precios**: Funcionalidad para actualizar precios de cortes existentes
 - **Exportación de Datos**: Exportar historial y datos a formato Excel
 
-### Interfaces Disponibles
-- **Interfaz de Escritorio**: Aplicación nativa con Tkinter y CustomTkinter
-- **Interfaz Web**: Aplicación moderna con React + TypeScript + Vite
-- **API REST**: Endpoints completos para integración con terceros
+El frontend se encuentra en un repositorio separado: [barbershop-frontend](https://github.com/tu-usuario/barbershop-frontend)
 
 ### Arquitectura
 - **Backend API**: REST API construida con FastAPI y validación con Pydantic
@@ -61,16 +58,11 @@ poetry install
 poetry shell
 ```
 
-### 3. Instalar Frontend Web
+### Frontend Web
+El frontend está en un repositorio separado. Para instalarlo:
 ```bash
-# Navegar al directorio del frontend
-cd frontend
-
-# Instalar dependencias de Node.js
+cd ../barbershop-frontend
 npm install
-
-# Volver al directorio raíz
-cd ..
 ```
 
 ### 4. Configurar Variables de Entorno (Opcional)
@@ -92,7 +84,7 @@ PORT="8000"
 poetry run uvicorn barbershop.app:app --reload
 
 # Terminal 2: Iniciar el frontend web
-cd frontend
+cd ../barbershop-frontend
 npm run dev
 
 # Terminal 3: Iniciar la aplicación de escritorio (opcional)
@@ -111,7 +103,7 @@ poetry run python -m barbershop.gui.main
 ### Opción 3: Solo Frontend Web (con API corriendo)
 ```bash
 # Asegúrate que el backend está corriendo en http://127.0.0.1:8000
-cd frontend
+cd ../barbershop-frontend
 npm run dev
 ```
 
@@ -155,29 +147,11 @@ barbershop/
 │   └── database/               # Conexión a la base de datos
 │       ├── __init__.py
 │       └── create_connection.py
-├── frontend/                   # Aplicación web frontend
-│   ├── src/
-│   │   ├── components/         # Componentes React
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── HaircutForm.tsx
-│   │   │   ├── HaircutList.tsx
-│   │   │   └── Statistics.tsx
-│   │   ├── hooks/              # Hooks personalizados
-│   │   │   └── useHaircuts.ts
-│   │   ├── services/           # Servicios de API
-│   │   │   └── haircutService.ts
-│   │   ├── types/              # Tipos TypeScript
-│   │   │   └── index.ts
-│   │   ├── tests/              # Tests del frontend
-│   │   └── App.tsx, main.tsx
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── tsconfig.json
 ├── tests/                      # Suite de pruebas completa
 │   ├── api/                    # Tests de API
 │   ├── core/                   # Tests de lógica de negocio
 │   ├── database/               # Tests de base de datos
-│   └── frontend/               # Tests de frontend
+│   └── desktop/                # Tests de aplicación de escritorio
 ├── .env                        # Variables de entorno
 ├── .gitignore
 ├── .pre-commit-config.yaml
@@ -218,26 +192,17 @@ poetry run pytest tests/core/
 ```
 
 ### Frontend Tests
+El frontend está en un repositorio separado. Para ejecutar los tests:
 ```bash
-# Navegar al directorio del frontend
-cd frontend
-
-# Ejecutar pruebas del frontend
+cd ../barbershop-frontend
 npm run test
-
-# Ejecutar pruebas en modo watch
-npm run test:watch
-
-# Con cobertura
-npm run test:coverage
 ```
 
 ### Estructura de Pruebas
 - **Tests de API**: Pruebas para los endpoints de FastAPI
 - **Tests de Base de Datos**: Pruebas de repositorios y conexión
 - **Tests de Lógica de Negocio**: Pruebas de funciones core
-- **Tests de Frontend**: Pruebas de componentes React con Vitest
-- **Tests de Integración**: Pruebas de flujo completo end-to-end
+- **Tests de Escritorio**: Pruebas de la aplicación de escritorio
 
 ## 📊 API Endpoints
 
@@ -262,7 +227,7 @@ Una vez iniciado el servidor, puedes acceder a:
 ## 🎨 Interfaz de Usuario
 
 ### Interfaz Web (React)
-La aplicación web moderna incluye:
+La interfaz web se encuentra en el repositorio [barbershop-frontend](https://github.com/tu-usuario/barbershop-frontend) e incluye:
 - **Dashboard Principal**: Vista completa con estadísticas y acciones rápidas
 - **Gestión de Cortes**: Formulario intuitivo para crear, editar y eliminar cortes
 - **Panel de Estadísticas**: Gráficos interactivos con Recharts
@@ -353,11 +318,7 @@ Si encuentras algún bug o necesitas soporte:
 - **Calidad de Código**: Ruff, Pylint, Pre-commit hooks
 
 ### Frontend
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Gráficos**: Recharts
-- **Testing**: Vitest + React Testing Library
-- **Estilos**: CSS moderno con diseño responsive
+El frontend se encuentra en un repositorio separado: [barbershop-frontend](https://github.com/tu-usuario/barbershop-frontend)
 
 ### DevOps
 - **Gestión de Dependencias**: Poetry (Python), npm (Node.js)
