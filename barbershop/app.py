@@ -1,11 +1,20 @@
 import loguru
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .database import create_connection
 from .routes import haircuts_router
 
 logger = loguru.logger
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(haircuts_router)
 
