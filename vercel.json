@@ -1,14 +1,10 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build && cd .. && uv pip install -r requirements.txt --system",
+  "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "app.py"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "frontend/dist/assets/$1"
     },
     {
       "src": "/(.*)",
