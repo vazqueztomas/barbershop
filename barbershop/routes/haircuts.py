@@ -11,13 +11,13 @@ from barbershop.database import create_connection
 from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate
 from barbershop.repositories import HaircutRepository
 
-DB_PATH = os.environ.get("DB_PATH", "/tmp/testing.db")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 @contextmanager
 def get_db_connection() -> Generator:
     """Context manager para obtener conexión a la base de datos."""
-    conn = create_connection(DB_PATH)
+    conn = create_connection(DATABASE_URL)
     try:
         yield conn
     finally:
@@ -27,7 +27,7 @@ def get_db_connection() -> Generator:
 
 def get_db() -> Generator:
     """Dependency para obtener conexión a la base de datos."""
-    conn = create_connection(DB_PATH)
+    conn = create_connection(DATABASE_URL)
     try:
         yield conn
     finally:
@@ -97,7 +97,6 @@ def debug_create_haircut(raw_body: dict, conn=Depends(get_db)) -> dict:
         print(f"  {key}: {value} (type: {type(value)})")
     print("=" * 60)
     
-    # Intentar crear el objeto manualmente
     try:
         haircut = HaircutCreate(**raw_body)
         print(f"SUCCESS: HaircutCreate validado: {haircut}")
@@ -178,7 +177,6 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
         repo = HaircutRepository(conn)
         all_haircuts = repo.get_all()
         
-        # Agrupar por fecha
         by_date: dict[str, dict] = {}
         for haircut in all_haircuts:
             date_key = haircut.date.isoformat()
@@ -189,7 +187,6 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
             by_date[date_key]["tip"] += haircut.tip
             by_date[date_key]["clients"].append(haircut.clientName)
         
-        # Convertir a lista ordenada por fecha descendente
         result = [
             {
                 "date": date_key,
@@ -241,14 +238,14 @@ def get_today_summary(conn=Depends(get_db)) -> dict:
         raise HTTPException(status_code=500, detail=f"Error getting summary: {str(e)}")
 
 
-# Service Prices Endpoints
 @router.get("/services/prices")
 def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
-    cursor = conn.execute("SELECT service_name, base_price FROM service_prices ORDER BY service_name")
+    cursor = conn.cursor()
+    cursor.execute("SELECT service_name, base_price FROM service_prices ORDER BY service_name")
     rows = cursor.fetchall()
-    return [ServicePrice(serviceName=row[0], basePrice=row[1]) for row in rows]
+    return [ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"]) for row in rows]
 
 
 @router.put("/services/prices/{service_name}")
@@ -259,28 +256,30 @@ def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) ->
     if base_price is None:
         raise HTTPException(status_code=400, detail="basePrice is required")
     
-    cursor = conn.execute(
-        "UPDATE service_prices SET base_price = ? WHERE service_name = ?",
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE service_prices SET base_price = %s WHERE service_name = %s",
         (base_price, service_name)
     )
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Service not found")
     conn.commit()
     
-    cursor = conn.execute(
-        "SELECT service_name, base_price FROM service_prices WHERE service_name = ?",
+    cursor.execute(
+        "SELECT service_name, base_price FROM service_prices WHERE service_name = %s",
         (service_name,)
     )
     row = cursor.fetchone()
-    return ServicePrice(serviceName=row[0], basePrice=row[1])
+    return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])
 
 
 @router.post("/services/prices")
 def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)) -> ServicePrice:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
-    cursor = conn.execute(
-        "INSERT INTO service_prices (id, service_name, base_price) VALUES (?, ?, ?)",
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO service_prices (id, service_name, base_price) VALUES (%s, %s, %s)",
         (str(uuid4()), service_price.serviceName, service_price.basePrice)
     )
     conn.commit()
@@ -291,8 +290,9 @@ def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)
 def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
-    cursor = conn.execute(
-        "DELETE FROM service_prices WHERE service_name = ?",
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM service_prices WHERE service_name = %s",
         (service_name,)
     )
     if cursor.rowcount == 0:
@@ -305,11 +305,12 @@ def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
 def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
-    cursor = conn.execute(
-        "SELECT service_name, base_price FROM service_prices WHERE service_name = ?",
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT service_name, base_price FROM service_prices WHERE service_name = %s",
         (service_name,)
     )
     row = cursor.fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="Service not found")
-    return ServicePrice(serviceName=row[0], basePrice=row[1])
+    return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])

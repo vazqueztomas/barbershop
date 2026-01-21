@@ -21,5 +21,5 @@ app.include_router(haircuts_router)
 
 @app.get("/")
 def read_root():
-    create_connection("testing.db")
+    create_connection()
     return {"Barbershop API": "OK"}

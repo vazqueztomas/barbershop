@@ -15,8 +15,5 @@
       "dest": "api/index.py"
     }
   ],
-  "buildCommand": "pip install pipenv && pipenv install --deploy --ignore-pipfile",
-  "env": {
-    "DATABASE_URL": "postgresql://neondb_owner:npg_dnG1KF5DwXvZ@ep-curly-fog-ahl1nsq3-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
-  }
+  "buildCommand": "pip install pipenv && pipenv install --deploy --ignore-pipfile"
 }
