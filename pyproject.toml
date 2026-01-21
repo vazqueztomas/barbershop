@@ -10,6 +10,8 @@ dependencies = [
     "uvicorn",
     "loguru",
     "python-multipart",
+    "psycopg2-binary",
+    "python-dotenv",
 ]
 
 [project.optional-dependencies]
