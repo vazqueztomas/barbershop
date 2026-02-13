@@ -7,13 +7,11 @@ from barbershop.models import (
     PasswordResetRequest, PasswordResetConfirm
 )
 from barbershop.repositories import UserRepository, get_db_connection
+from barbershop.repositories.users import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from barbershop.database import create_connection
 import os
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

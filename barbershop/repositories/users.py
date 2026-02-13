@@ -3,11 +3,12 @@ from uuid import UUID, uuid4
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 import secrets
+import os
 
 from barbershop.models import User, UserCreate, UserBase
 from .handler_errors import NotFoundResponse
 
-SECRET_KEY = "your-secret-key-change-in-production"
+SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 PASSWORD_RESET_EXPIRE_MINUTES = 60  # 1 hour
