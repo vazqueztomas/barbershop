@@ -2,7 +2,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-import os
+from typing import Generator
 
 from barbershop.models import (
     User, UserCreate, Token, LoginRequest, 
@@ -11,14 +11,12 @@ from barbershop.models import (
 from barbershop.repositories import UserRepository, get_db
 from barbershop.repositories.users import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), conn=Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -32,19 +30,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     
-    conn = next(get_db())
-    try:
-        user = UserRepository(conn).get_user_by_username(username)
-        if user is None:
-            raise credentials_exception
-        return user
-    finally:
-        pass
+    user = UserRepository(conn).get_user_by_username(username)
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 @router.post("/register", response_model=User, tags=["Auth"])
-def register(user_data: UserCreate):
-    conn = next(get_db())
+def register(user_data: UserCreate, conn=Depends(get_db)):
     repo = UserRepository(conn)
     
     if repo.get_user_by_username(user_data.username):
@@ -59,13 +52,11 @@ def register(user_data: UserCreate):
             detail="Email already registered"
         )
     
-    user = repo.create_user(user_data)
-    return user
+    return repo.create_user(user_data)
 
 
 @router.post("/login", response_model=Token, tags=["Auth"])
-def login(login_data: LoginRequest):
-    conn = next(get_db())
+def login(login_data: LoginRequest, conn=Depends(get_db)):
     repo = UserRepository(conn)
     user = repo.authenticate_user(login_data.username, login_data.password)
     
@@ -86,8 +77,7 @@ def login(login_data: LoginRequest):
 
 
 @router.post("/token", response_model=Token, tags=["Auth"])
-def login_oauth2(form_data: OAuth2PasswordRequestForm = Depends()):
-    conn = next(get_db())
+def login_oauth2(form_data: OAuth2PasswordRequestForm = Depends(), conn=Depends(get_db)):
     repo = UserRepository(conn)
     user = repo.authenticate_user(form_data.username, form_data.password)
     
@@ -108,8 +98,7 @@ def login_oauth2(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @router.post("/password-reset", tags=["Auth"])
-def request_password_reset(request: PasswordResetRequest):
-    conn = next(get_db())
+def request_password_reset(request: PasswordResetRequest, conn=Depends(get_db)):
     repo = UserRepository(conn)
     token = repo.create_password_reset_token(request.email)
     
@@ -123,8 +112,7 @@ def request_password_reset(request: PasswordResetRequest):
 
 
 @router.post("/password-reset/confirm", tags=["Auth"])
-def confirm_password_reset(confirm: PasswordResetConfirm):
-    conn = next(get_db())
+def confirm_password_reset(confirm: PasswordResetConfirm, conn=Depends(get_db)):
     repo = UserRepository(conn)
     success = repo.reset_password(confirm.token, confirm.new_password)
     
