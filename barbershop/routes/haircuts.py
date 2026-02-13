@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from barbershop.database import create_connection
 from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate, ClientStats, ClientHistory
-from barbershop.repositories import HaircutRepository
+from barbershop.repositories import HaircutRepository, NotFoundResponse
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
@@ -35,7 +35,7 @@ def get_db() -> Generator:
             conn.close()
 
 
-router = APIRouter(prefix="/haircuts")
+router = APIRouter(prefix="/haircuts", tags=["Haircuts"])
 
 
 @router.get("/")
@@ -238,7 +238,7 @@ def get_today_summary(conn=Depends(get_db)) -> dict:
         raise HTTPException(status_code=500, detail=f"Error getting summary: {str(e)}")
 
 
-@router.get("/services/prices")
+@router.get("/services/prices", tags=["Services"])
 def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -248,7 +248,7 @@ def get_service_prices(conn=Depends(get_db)) -> list[ServicePrice]:
     return [ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"]) for row in rows]
 
 
-@router.put("/services/prices/{service_name}")
+@router.put("/services/prices/{service_name}", tags=["Services"])
 def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) -> ServicePrice:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -273,7 +273,7 @@ def update_service_price(service_name: str, body: dict, conn=Depends(get_db)) ->
     return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])
 
 
-@router.post("/services/prices")
+@router.post("/services/prices", tags=["Services"])
 def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)) -> ServicePrice:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -286,7 +286,7 @@ def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)
     return ServicePrice(serviceName=service_price.serviceName, basePrice=service_price.basePrice)
 
 
-@router.delete("/services/prices/{service_name}")
+@router.delete("/services/prices/{service_name}", tags=["Services"])
 def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -301,7 +301,7 @@ def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
     return {"message": f"Service {service_name} deleted"}
 
 
-@router.get("/services/price/{service_name}")
+@router.get("/services/price/{service_name}", tags=["Services"])
 def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -316,7 +316,7 @@ def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
     return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])
 
 
-@router.get("/clients")
+@router.get("/clients", tags=["Clients"])
 def get_clients(conn=Depends(get_db)) -> list[str]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -326,7 +326,7 @@ def get_clients(conn=Depends(get_db)) -> list[str]:
         raise HTTPException(status_code=500, detail=f"Error getting clients: {str(e)}")
 
 
-@router.get("/clients/top")
+@router.get("/clients/top", tags=["Clients"])
 def get_top_clients(conn=Depends(get_db), limit: int = 10) -> list[ClientStats]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -336,7 +336,7 @@ def get_top_clients(conn=Depends(get_db), limit: int = 10) -> list[ClientStats]:
         raise HTTPException(status_code=500, detail=f"Error getting top clients: {str(e)}")
 
 
-@router.get("/clients/top-by-spent")
+@router.get("/clients/top-by-spent", tags=["Clients"])
 def get_top_clients_by_spent(conn=Depends(get_db), limit: int = 10) -> list[ClientStats]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -346,7 +346,7 @@ def get_top_clients_by_spent(conn=Depends(get_db), limit: int = 10) -> list[Clie
         raise HTTPException(status_code=500, detail=f"Error getting clients by spent: {str(e)}")
 
 
-@router.get("/clients/{client_name}")
+@router.get("/clients/{client_name}", tags=["Clients"])
 def get_client_stats(client_name: str, conn=Depends(get_db)) -> ClientStats:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -358,7 +358,7 @@ def get_client_stats(client_name: str, conn=Depends(get_db)) -> ClientStats:
         raise HTTPException(status_code=500, detail=f"Error getting client stats: {str(e)}")
 
 
-@router.get("/clients/{client_name}/history")
+@router.get("/clients/{client_name}/history", tags=["Clients"])
 def get_client_history(client_name: str, conn=Depends(get_db)) -> ClientHistory:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")

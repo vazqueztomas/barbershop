@@ -4,10 +4,10 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import create_connection
-from .routes import haircuts_router
+from .routes import haircuts_router, auth_router
 
 logger = loguru.logger
-app = FastAPI()
+app = FastAPI(title="Barbershop API", description="API for managing barbershop operations")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +28,7 @@ async def add_cors_headers(request: Request, call_next):
 
 
 app.include_router(haircuts_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

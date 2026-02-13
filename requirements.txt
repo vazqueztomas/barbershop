@@ -3,3 +3,8 @@ uvicorn
 loguru
 python-multipart
 psycopg2-binary
+passlib
+bcrypt
+python-jose
+PyJWT
+email-validator
