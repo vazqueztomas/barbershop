@@ -37,3 +37,17 @@ class Haircut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ClientStats(BaseModel):
+    clientName: str
+    totalCuts: int
+    totalSpent: float
+    totalTip: float
+    lastVisit: str
+    services: list[str]
+
+
+class ClientHistory(BaseModel):
+    clientName: str
+    haircuts: list[Haircut]

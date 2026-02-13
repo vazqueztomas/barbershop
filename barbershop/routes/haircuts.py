@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from barbershop.database import create_connection
-from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate
+from barbershop.models import Haircut, HaircutCreate, ServicePrice, ServicePriceCreate, ClientStats, ClientHistory
 from barbershop.repositories import HaircutRepository
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -314,3 +314,57 @@ def get_service_price(service_name: str, conn=Depends(get_db)) -> ServicePrice:
     if row is None:
         raise HTTPException(status_code=404, detail="Service not found")
     return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])
+
+
+@router.get("/clients")
+def get_clients(conn=Depends(get_db)) -> list[str]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        return HaircutRepository(conn).get_unique_clients()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting clients: {str(e)}")
+
+
+@router.get("/clients/top")
+def get_top_clients(conn=Depends(get_db), limit: int = 10) -> list[ClientStats]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        return HaircutRepository(conn).get_top_clients(limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting top clients: {str(e)}")
+
+
+@router.get("/clients/top-by-spent")
+def get_top_clients_by_spent(conn=Depends(get_db), limit: int = 10) -> list[ClientStats]:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        return HaircutRepository(conn).get_clients_by_spent(limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting clients by spent: {str(e)}")
+
+
+@router.get("/clients/{client_name}")
+def get_client_stats(client_name: str, conn=Depends(get_db)) -> ClientStats:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        return HaircutRepository(conn).get_client_stats(client_name)
+    except NotFoundResponse:
+        raise HTTPException(status_code=404, detail="Client not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting client stats: {str(e)}")
+
+
+@router.get("/clients/{client_name}/history")
+def get_client_history(client_name: str, conn=Depends(get_db)) -> ClientHistory:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        repo = HaircutRepository(conn)
+        haircuts = repo.get_client_haircuts(client_name)
+        return ClientHistory(clientName=client_name, haircuts=haircuts)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting client history: {str(e)}")

@@ -1,7 +1,7 @@
 from datetime import date
 from uuid import UUID, uuid4
 
-from barbershop.models import Haircut, HaircutCreate
+from barbershop.models import Haircut, HaircutCreate, ClientStats
 from .handler_errors import NotFoundResponse
 
 
@@ -131,3 +131,127 @@ class HaircutRepository:
         )
         self.connection.commit()
         return cursor.rowcount
+
+    def get_unique_clients(self) -> list[str]:
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT DISTINCT client_name FROM haircuts ORDER BY client_name")
+        return [row["client_name"] for row in cursor.fetchall()]
+
+    def get_client_stats(self, client_name: str) -> ClientStats:
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """SELECT
+                client_name,
+                COUNT(*) as total_cuts,
+                SUM(price) as total_spent,
+                COALESCE(SUM(tip), 0) as total_tip,
+                MAX(date) as last_visit
+            FROM haircuts
+            WHERE client_name = %s
+            GROUP BY client_name""",
+            (client_name,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise NotFoundResponse(status_code=404, detail="Client not found")
+
+        cursor.execute(
+            """SELECT DISTINCT service_name FROM haircuts WHERE client_name = %s ORDER BY service_name""",
+            (client_name,)
+        )
+        services = [r["service_name"] for r in cursor.fetchall()]
+
+        return ClientStats(
+            clientName=row["client_name"],
+            totalCuts=row["total_cuts"],
+            totalSpent=float(row["total_spent"]) if row["total_spent"] else 0,
+            totalTip=float(row["total_tip"]) if row["total_tip"] else 0,
+            lastVisit=row["last_visit"] if row["last_visit"] else "",
+            services=services
+        )
+
+    def get_top_clients(self, limit: int = 10) -> list[ClientStats]:
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """SELECT
+                client_name,
+                COUNT(*) as total_cuts,
+                SUM(price) as total_spent,
+                COALESCE(SUM(tip), 0) as total_tip,
+                MAX(date) as last_visit
+            FROM haircuts
+            GROUP BY client_name
+            ORDER BY total_cuts DESC
+            LIMIT %s""",
+            (limit,)
+        )
+        clients = []
+        for row in cursor.fetchall():
+            cursor.execute(
+                """SELECT DISTINCT service_name FROM haircuts WHERE client_name = %s""",
+                (row["client_name"],)
+            )
+            services = [r["service_name"] for r in cursor.fetchall()]
+            clients.append(ClientStats(
+                clientName=row["client_name"],
+                totalCuts=row["total_cuts"],
+                totalSpent=float(row["total_spent"]) if row["total_spent"] else 0,
+                totalTip=float(row["total_tip"]) if row["total_tip"] else 0,
+                lastVisit=row["last_visit"] if row["last_visit"] else "",
+                services=services
+            ))
+        return clients
+
+    def get_client_haircuts(self, client_name: str) -> list[Haircut]:
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """SELECT id, client_name, service_name, price, date, time, count, tip
+            FROM haircuts WHERE client_name = %s ORDER BY date DESC, id DESC""",
+            (client_name,)
+        )
+        cuts = cursor.fetchall()
+        return [
+            Haircut(
+                id=UUID(cut["id"]),
+                clientName=cut["client_name"],
+                serviceName=cut["service_name"],
+                price=cut["price"],
+                date=date.fromisoformat(cut["date"]) if cut["date"] else date.today(),
+                time=cut["time"],
+                count=cut["count"] if cut["count"] else 0,
+                tip=cut["tip"] if cut["tip"] else 0
+            )
+            for cut in cuts
+        ]
+
+    def get_clients_by_spent(self, limit: int = 10) -> list[ClientStats]:
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """SELECT
+                client_name,
+                COUNT(*) as total_cuts,
+                SUM(price) as total_spent,
+                COALESCE(SUM(tip), 0) as total_tip,
+                MAX(date) as last_visit
+            FROM haircuts
+            GROUP BY client_name
+            ORDER BY total_spent DESC
+            LIMIT %s""",
+            (limit,)
+        )
+        clients = []
+        for row in cursor.fetchall():
+            cursor.execute(
+                """SELECT DISTINCT service_name FROM haircuts WHERE client_name = %s""",
+                (row["client_name"],)
+            )
+            services = [r["service_name"] for r in cursor.fetchall()]
+            clients.append(ClientStats(
+                clientName=row["client_name"],
+                totalCuts=row["total_cuts"],
+                totalSpent=float(row["total_spent"]) if row["total_spent"] else 0,
+                totalTip=float(row["total_tip"]) if row["total_tip"] else 0,
+                lastVisit=row["last_visit"] if row["last_visit"] else "",
+                services=services
+            ))
+        return clients
