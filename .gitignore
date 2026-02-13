@@ -145,3 +145,4 @@ build/
 .DS_Store
 *.pem
 testing.db
+playground/
