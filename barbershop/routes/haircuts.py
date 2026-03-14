@@ -286,6 +286,29 @@ def create_service_price(service_price: ServicePriceCreate, conn=Depends(get_db)
     return ServicePrice(serviceName=service_price.serviceName, basePrice=service_price.basePrice)
 
 
+@router.patch("/services/prices/{service_name}/rename")
+def rename_service(service_name: str, body: dict, conn=Depends(get_db)) -> ServicePrice:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    new_name = body.get("newName", "").strip()
+    if not new_name:
+        raise HTTPException(status_code=400, detail="newName is required")
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE service_prices SET service_name = %s WHERE service_name = %s",
+        (new_name, service_name)
+    )
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Service not found")
+    conn.commit()
+    cursor.execute(
+        "SELECT service_name, base_price FROM service_prices WHERE service_name = %s",
+        (new_name,)
+    )
+    row = cursor.fetchone()
+    return ServicePrice(serviceName=row["service_name"], basePrice=row["base_price"])
+
+
 @router.delete("/services/prices/{service_name}")
 def delete_service_price(service_name: str, conn=Depends(get_db)) -> dict:
     if conn is None:
