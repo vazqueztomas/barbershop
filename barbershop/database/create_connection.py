@@ -66,6 +66,10 @@ def create_connection(db_url=None):
         if "tip" not in columns:
             cursor.execute("ALTER TABLE haircuts ADD COLUMN tip REAL DEFAULT 0")
         
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_haircuts_date ON haircuts(date)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_haircuts_client_name ON haircuts(client_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_haircuts_service_name ON haircuts(service_name)")
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS service_prices (
                 id TEXT PRIMARY KEY,

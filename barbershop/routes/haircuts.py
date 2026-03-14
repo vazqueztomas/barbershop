@@ -45,6 +45,31 @@ def get_haircuts(conn=Depends(get_db)) -> list[Haircut]:
     return HaircutRepository(conn).get_all()
 
 
+@router.get("/stats/global")
+def get_global_stats(conn=Depends(get_db)) -> dict:
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                COUNT(*) AS total_cuts,
+                COALESCE(SUM(price), 0) AS total_revenue,
+                COALESCE(AVG(price), 0) AS average_ticket,
+                MIN(date) AS first_cut_date
+            FROM haircuts
+        """)
+        row = cursor.fetchone()
+        return {
+            "totalCuts": row["total_cuts"],
+            "totalRevenue": row["total_revenue"],
+            "averageTicket": row["average_ticket"],
+            "firstCutDate": row["first_cut_date"].isoformat() if row["first_cut_date"] else None,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting global stats: {str(e)}")
+
+
 @router.get("/{haircut_id}")
 def get_haircut(haircut_id: UUID, conn=Depends(get_db)) -> Haircut:
     if conn is None:
@@ -174,32 +199,29 @@ def get_daily_history(conn=Depends(get_db)) -> list[dict]:
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
-        repo = HaircutRepository(conn)
-        all_haircuts = repo.get_all()
-        
-        by_date: dict[str, dict] = {}
-        for haircut in all_haircuts:
-            date_key = haircut.date.isoformat()
-            if date_key not in by_date:
-                by_date[date_key] = {"total": 0, "count": 0, "tip": 0, "clients": []}
-            by_date[date_key]["total"] += haircut.price
-            by_date[date_key]["count"] += haircut.count
-            by_date[date_key]["tip"] += haircut.tip
-            by_date[date_key]["clients"].append(haircut.clientName)
-        
-        result = [
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                date,
+                SUM(price) AS total,
+                SUM(count) AS count,
+                SUM(COALESCE(tip, 0)) AS tip,
+                array_agg(client_name) AS clients
+            FROM haircuts
+            GROUP BY date
+            ORDER BY date DESC
+        """)
+        rows = cursor.fetchall()
+        return [
             {
-                "date": date_key,
-                "total": data["total"],
-                "count": data["count"],
-                "tip": data["tip"],
-                "clients": data["clients"]
+                "date": row["date"].isoformat() if hasattr(row["date"], "isoformat") else row["date"],
+                "total": row["total"],
+                "count": row["count"],
+                "tip": row["tip"],
+                "clients": row["clients"],
             }
-            for date_key, data in by_date.items()
+            for row in rows
         ]
-        result.sort(key=lambda x: x["date"], reverse=True)
-        
-        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting history: {str(e)}")
 
